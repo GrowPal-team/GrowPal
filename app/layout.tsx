@@ -1,0 +1,41 @@
+import type { Metadata, Viewport } from 'next'
+import { DM_Sans, Playfair_Display } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
+import './globals.css'
+import { ConditionalExpertChatWidget } from '@/components/conditional-expert-chat-widget'
+import { LeadCaptureModal } from '@/components/lead-capture-modal'
+import { Toaster } from '@/components/ui/toaster'
+
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans' })
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
+
+export const metadata: Metadata = {
+  title: 'GrowPal - Rooted in Home, Growing for Palestine',
+  description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
+  icons: {
+    icon: '/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png',
+    apple: '/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#3a7d44',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`} suppressHydrationWarning>
+        {children}
+        <LeadCaptureModal />
+        <ConditionalExpertChatWidget />
+        <Toaster />
+        <Analytics />
+      </body>
+    </html>
+  )
+}

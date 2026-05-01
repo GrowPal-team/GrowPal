@@ -1,0 +1,416 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int                   @id @default(autoincrement())
+  full_name             String                @db.VarChar(200)
+  email                 String                @unique(map: "email") @db.VarChar(255)
+  password_hash         String                @db.VarChar(255)
+  /// Auth / profile columns maintained by PHP (`api/auth.php`) and optional Next routes
+  emailVerified         Boolean?              @map("email_verified")
+  verificationCode      String?               @map("verification_code") @db.VarChar(6)
+  verificationCodeExpiresAt DateTime?         @map("verification_code_expires_at") @db.DateTime(0)
+  passwordResetCode     String?               @map("password_reset_code") @db.VarChar(6)
+  passwordResetExpiresAt DateTime?            @map("password_reset_expires_at") @db.DateTime(0)
+  firstName             String?               @map("first_name") @db.VarChar(100)
+  lastName              String?               @map("last_name") @db.VarChar(100)
+  newsletterOptIn       Boolean               @default(false) @map("newsletter_opt_in")
+  role                  UserRole              @default(user)
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt             DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  sentMessages          ChatMessage[]         @relation("UserMessages")
+  experts               experts?
+  orders                Order[]
+  spaces                Space[]
+  sustainabilityMetrics SustainabilityMetric?
+  wishlist_items        wishlist_items[]
+  productReviews        ProductReview[]
+  expertThreadsCustomer ExpertThread[]        @relation("ExpertThreadCustomer")
+  expertThreadsClaimed  ExpertThread[]        @relation("ExpertThreadClaimedBy")
+  expertThreadMessages  ExpertThreadMessage[] @relation("ExpertThreadMessageSender")
+  expertRecommendations ExpertRecommendation[] @relation("ExpertRecommendationAuthor")
+  plantStage           Int                    @default(0) @map("plant_stage")
+  plantPendingGiftCode String?                @map("plant_pending_gift_code") @db.VarChar(48)
+  plantCompletions     Int                    @default(0) @map("plant_completions")
+
+  @@index([email], map: "idx_email")
+  @@index([role], map: "idx_role")
+  @@map("users")
+}
+
+model ExpertThread {
+  id Int                    @id @default(autoincrement())
+  userId                  Int                    @map("user_id")
+  status                  ExpertThreadStatus     @default(open)
+  claimedByExpertUserId   Int?                   @map("claimed_by_expert_id")
+  claimedAt               DateTime?              @map("claimed_at") @db.Timestamp(0)
+  subject                 String?                @db.VarChar(255)
+  lastMessagePreview      String?                @map("last_message_preview") @db.VarChar(500)
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  createdAt               DateTime               @default(now()) @map("created_at") @db.Timestamp(0)
+  customer                User                   @relation("ExpertThreadCustomer", fields: [userId], references: [id], onDelete: Cascade)
+  claimedByExpert         User?                  @relation("ExpertThreadClaimedBy", fields: [claimedByExpertUserId], references: [id], onDelete: SetNull)
+  messages                ExpertThreadMessage[]
+  recommendations         ExpertRecommendation[]
+
+  @@index([claimedByExpertUserId], map: "idx_claimed")
+  @@index([status], map: "idx_status")
+  @@index([userId], map: "idx_user")
+  @@map("expert_threads")
+}
+
+model ExpertRecommendation {
+  id           Int      @id @default(autoincrement())
+  threadId     Int      @map("thread_id")
+  expertUserId Int      @map("expert_user_id")
+  body         String   @db.Text
+  productId    Int?     @map("product_id")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  thread       ExpertThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  expert       User         @relation("ExpertRecommendationAuthor", fields: [expertUserId], references: [id], onDelete: Cascade)
+  product      Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([threadId], map: "idx_thread")
+  @@index([expertUserId], map: "idx_expert")
+  @@map("expert_recommendations")
+}
+
+model ExpertThreadMessage {
+  id           Int                     @id @default(autoincrement())
+  threadId     Int                     @map("thread_id")
+  senderUserId Int?                    @map("sender_user_id")
+  senderRole   ExpertThreadMessageRole @map("sender_role")
+  body         String                  @db.Text
+  createdAt    DateTime                @default(now()) @map("created_at") @db.Timestamp(0)
+  thread       ExpertThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender       User?                   @relation("ExpertThreadMessageSender", fields: [senderUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt], map: "idx_created")
+  @@index([threadId], map: "idx_thread")
+  @@map("expert_thread_messages")
+}
+
+enum ExpertThreadStatus {
+  open
+  claimed
+  closed
+}
+
+enum ExpertThreadMessageRole {
+  customer
+  expert
+  system
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  slug        String    @unique(map: "slug") @db.VarChar(100)
+  description String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                Int                        @id @default(autoincrement())
+  name              String                     @db.VarChar(200)
+  slug              String                     @unique(map: "slug") @db.VarChar(200)
+  description       String?                    @db.Text
+  price_ils         Decimal                    @db.Decimal(10, 2)
+  imageUrl          String?                    @map("image_url") @db.VarChar(500)
+  categoryId        Int                        @map("category_id")
+  sun_exposure      products_sun_exposure
+  water_level       products_water_level
+  maintenance_level products_maintenance_level
+  weight_level      products_weight_level
+  climate_zones     String                     @db.VarChar(100)
+  seasons           String                     @db.VarChar(50)
+  eco_score         Int                        @default(0)
+  space_types       String                     @db.VarChar(200)
+  stock_quantity    Int?                       @default(0)
+  is_active         Boolean?                   @default(true)
+  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime                   @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  orderItems        OrderItem[]
+  category          Category                   @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "products_ibfk_1")
+  wishlist_items         wishlist_items[]
+  productReviews         ProductReview[]
+  expertRecommendations  ExpertRecommendation[]
+
+  @@index([categoryId], map: "idx_category")
+  @@index([climate_zones], map: "idx_climate_zones")
+  @@index([eco_score], map: "idx_eco_score")
+  @@index([is_active], map: "idx_is_active")
+  @@index([seasons], map: "idx_seasons")
+  @@index([sun_exposure], map: "idx_sun_exposure")
+  @@index([water_level], map: "idx_water_level")
+  @@map("products")
+}
+
+model Order {
+  id         Int           @id @default(autoincrement())
+  userId     Int           @map("user_id")
+  total_ils  Decimal       @db.Decimal(10, 2)
+  status     orders_status @default(PENDING)
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  orderItems OrderItem[]
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "orders_ibfk_1")
+
+  @@index([createdAt], map: "idx_created_at")
+  @@index([status], map: "idx_status")
+  @@index([userId], map: "idx_user_id")
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  productId Int      @map("product_id")
+  qty       Int      @default(1)
+  price_ils Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_items_ibfk_1")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_items_ibfk_2")
+
+  @@index([orderId], map: "idx_order_id")
+  @@index([productId], map: "idx_product_id")
+  @@map("order_items")
+}
+
+model ChatMessage {
+  id          Int                       @id @default(autoincrement())
+  userId      Int                       @map("user_id")
+  expertId    Int?                      @map("expert_id")
+  message     String                    @db.Text
+  sender_role chat_messages_sender_role
+  createdAt   DateTime                  @default(now()) @map("created_at") @db.Timestamp(0)
+  user        User                      @relation("UserMessages", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "chat_messages_ibfk_1")
+  expert      experts?                  @relation("ExpertMessages", fields: [expertId], references: [id], onUpdate: Restrict, map: "chat_messages_ibfk_2")
+
+  @@index([createdAt], map: "idx_created_at")
+  @@index([expertId], map: "idx_expert_id")
+  @@index([userId], map: "idx_user_id")
+  @@map("chat_messages")
+}
+
+model ClimateZone {
+  id             Int                          @id @default(autoincrement())
+  name           String                       @unique(map: "name") @db.VarChar(100)
+  description    String?                      @db.Text
+  avg_temp       Decimal?                     @db.Decimal(5, 2)
+  rainfall_level climate_zones_rainfall_level
+  humidity_level climate_zones_humidity_level
+  frost_risk     climate_zones_frost_risk     @default(None)
+  heat_risk      climate_zones_heat_risk      @default(None)
+  createdAt      DateTime                     @default(now()) @map("created_at") @db.Timestamp(0)
+  cities         City[]
+  spaces         Space[]
+
+  @@index([name], map: "idx_name")
+  @@map("climate_zones")
+}
+
+model City {
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar(200)
+  zoneId    Int         @map("zone_id")
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamp(0)
+  zone      ClimateZone @relation(fields: [zoneId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cities_ibfk_1")
+  spaces    Space[]
+
+  @@index([name], map: "idx_name")
+  @@index([zoneId], map: "idx_zone_id")
+  @@map("cities")
+}
+
+model Space {
+  id                Int                       @id @default(autoincrement())
+  userId            Int                       @map("user_id")
+  spaceType         spaces_space_type         @map("space_type")
+  sizeM2            Decimal                   @map("size_m2") @db.Decimal(10, 2)
+  sunExposure       spaces_sun_exposure       @map("sun_exposure")
+  waterAvailability spaces_water_availability @map("water_availability")
+  budgetLevel       spaces_budget_level       @map("budget_level")
+  goal              spaces_goal
+  cityId            Int?                      @map("city_id")
+  zoneId            Int?                      @map("zone_id")
+  createdAt         DateTime                  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime                  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "spaces_ibfk_1")
+  city              City?                     @relation(fields: [cityId], references: [id], onUpdate: Restrict, map: "spaces_ibfk_2")
+  zone              ClimateZone?              @relation(fields: [zoneId], references: [id], onUpdate: Restrict, map: "spaces_ibfk_3")
+
+  @@index([cityId], map: "idx_city_id")
+  @@index([userId], map: "idx_user_id")
+  @@index([zoneId], map: "idx_zone_id")
+  @@map("spaces")
+}
+
+model SustainabilityMetric {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique(map: "unique_user_metrics") @map("user_id")
+  water_estimate Decimal? @default(0.00) @db.Decimal(10, 2)
+  co2_estimate   Decimal? @default(0.00) @db.Decimal(10, 2)
+  heatReduction  Decimal? @default(0.00) @map("heat_reduction") @db.Decimal(5, 2)
+  ecoScore       Int?     @default(0) @map("eco_score")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "sustainability_metrics_ibfk_1")
+
+  @@index([userId], map: "idx_user_id")
+  @@map("sustainability_metrics")
+}
+
+model experts {
+  id               Int           @id @default(autoincrement())
+  user_id          Int           @unique(map: "user_id")
+  display_name     String        @db.VarChar(200)
+  specialization   String?       @db.VarChar(200)
+  bio              String?       @db.Text
+  created_at       DateTime      @default(now()) @db.Timestamp(0)
+  receivedMessages ChatMessage[] @relation("ExpertMessages")
+  users            User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "experts_ibfk_1")
+
+  @@index([user_id], map: "idx_user_id")
+}
+
+model wishlist_items {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlist_items_ibfk_1")
+  products   Product  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlist_items_ibfk_2")
+
+  @@unique([user_id, product_id], map: "unique_user_product")
+  @@index([product_id], map: "idx_product_id")
+  @@index([user_id], map: "idx_user_id")
+}
+
+model ProductReview {
+  id        Int      @id @default(autoincrement())
+  productId Int      @map("product_id")
+  userId    Int      @map("user_id")
+  rating    Int      @default(5)
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_reviews_ibfk_1")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_reviews_ibfk_2")
+
+  @@index([productId], map: "idx_product_reviews_product")
+  @@index([userId], map: "idx_product_reviews_user")
+  @@map("product_reviews")
+}
+
+enum UserRole {
+  user
+  expert
+  admin
+}
+
+enum spaces_space_type {
+  Indoor
+  Balcony
+  Garden
+  Rooftop
+  Office
+}
+
+enum orders_status {
+  PENDING
+  PAID_MOCK
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum chat_messages_sender_role {
+  user
+  expert
+}
+
+enum climate_zones_rainfall_level {
+  Low
+  Medium
+  High
+}
+
+enum spaces_sun_exposure {
+  Full_Sun      @map("Full Sun")
+  Partial_Sun   @map("Partial Sun")
+  Partial_Shade @map("Partial Shade")
+  Full_Shade    @map("Full Shade")
+}
+
+enum climate_zones_humidity_level {
+  Low
+  Medium
+  High
+}
+
+enum spaces_water_availability {
+  Limited
+  Moderate
+  Abundant
+}
+
+enum climate_zones_frost_risk {
+  None
+  Low
+  Medium
+  High
+}
+
+enum spaces_budget_level {
+  Low
+  Medium
+  High
+}
+
+enum climate_zones_heat_risk {
+  None
+  Low
+  Medium
+  High
+}
+
+enum products_sun_exposure {
+  Full_Sun      @map("Full Sun")
+  Partial_Sun   @map("Partial Sun")
+  Partial_Shade @map("Partial Shade")
+  Full_Shade    @map("Full Shade")
+}
+
+enum spaces_goal {
+  Decor
+  Food
+  Cooling
+  Air_Quality @map("Air Quality")
+}
+
+enum products_water_level {
+  Low
+  Medium
+  High
+}
+
+enum products_maintenance_level {
+  Low
+  Medium
+  High
+}
+
+enum products_weight_level {
+  Light
+  Medium
+  Heavy
+}

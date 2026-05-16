@@ -1,308 +1,192 @@
 # GrowPal
 
-GrowPal is a full-stack plant and gardening platform: product discovery, shopping, personalized plant experiences, expert consultation, and an admin area for managing users, products, and feedback. The app combines a **Next.js** frontend with **MySQL** (via **Prisma**) and **PHP** endpoints under XAMPP for legacy auth and email flows.
+**A full-stack platform for sustainable plant discovery, commerce, and space-aware gardening guidance.**
 
-**Repository:** [github.com/GrowPal-team/GrowPal](https://github.com/GrowPal-team/GrowPal)
-
----
-
-## Tech stack
-
-| Layer | Technology |
-|--------|------------|
-| UI | Next.js (App Router), React 19, TypeScript |
-| Styling | Tailwind CSS 4, Radix UI, shadcn-style components |
-| Data | Prisma ORM, MySQL |
-| Auth / mail bridge | PHP (`api/`, `includes/`) + Next API routes |
-| Maps | Leaflet / React-Leaflet (climate zones) |
+| | |
+|---|---|
+| **Repository** | [github.com/GrowPal-team/GrowPal](https://github.com/GrowPal-team/GrowPal) |
+| **Stack** | Next.js (App Router), React 19, TypeScript, PHP, MySQL, Prisma |
+| **Deployment** | Server-hosted application (not static hosting) |
 
 ---
 
-## Features (overview)
+## Abstract
 
-- **Shop** — catalog, product detail, cart, checkout, wishlist  
-- **Account** — login, register, password reset, email verification (PHP + APIs)  
-- **My plant / My space** — gamified plant journey and space profiles  
-- **Expert area** — dashboard, chat threads, billing, profile  
-- **Community feedback** — ratings and featured feedback  
-- **Admin** — protected routes for users, products, experts, feedback (`/admin`)  
-- **Marketing pages** — impact, story, workshops, climate zones, etc.
+GrowPal is a web application designed to support environmentally informed planting decisions. The system integrates product discovery, climate-zone recommendations, authenticated user flows, and checkout mechanics within a unified architecture. By combining a Next.js presentation layer with legacy PHP endpoints and a relational MySQL datastore, the platform delivers shop filtering, cart and wishlist management, discount validation, and post-purchase reward logic in a single cohesive product.
 
 ---
 
-## Prerequisites
+## 1. Introduction
 
-- **Node.js** 20+ (LTS recommended)  
-- **npm**  
-- **XAMPP** (or similar) with **Apache + MySQL + PHP**  
-- **Composer** (for PHP dependencies such as PHPMailer)
+Urban and residential greening initiatives often fail when plant selection ignores local climate, available space, and maintenance constraints. GrowPal addresses this gap by mapping user context—space type, sunlight, water requirements, and budget—to catalog items and zone-based suggestions, rather than relying on generic listings alone.
+
+The application serves three primary user journeys:
+
+1. **Discovery** — browse, filter, and compare plants aligned with environmental constraints;
+2. **Commerce** — cart, wishlist, checkout, and promotional discount application;
+3. **Engagement** — account management, email verification, and order-linked growth rewards.
 
 ---
 
-## Getting started
+## 2. System Architecture
 
-### 1. Clone the repository
+| Layer | Technology | Role |
+|--------|------------|------|
+| Presentation | Next.js, React, TypeScript, Tailwind CSS | Routes, UI components, client logic |
+| Application API | Next.js Route Handlers | REST-style endpoints for shop, auth bridge, checkout |
+| Legacy services | PHP (`api/`, `includes/`) | Session auth, mail, shared server utilities |
+| Persistence | MySQL via Prisma | Schema, queries, migrations |
+| Messaging | PHPMailer | Transactional email (verification, reset) |
+
+### 2.1 Directory layout
+
+| Path | Description |
+|------|-------------|
+| `app/` | Next.js App Router pages and API routes |
+| `components/` | Reusable React UI modules |
+| `lib/` | Catalog, filters, discounts, mocks, shared helpers |
+| `api/`, `includes/` | PHP backend and includes |
+| `prisma/` | Database schema and client generation |
+| `public/` | Static media (images, icons, video) |
+| `docs/screenshots/` | Documentation figures (see §5) |
+
+---
+
+## 3. Functional Specification
+
+| Capability | Summary |
+|------------|---------|
+| Smart shop | Category, space, sun exposure, water, and budget filters |
+| Climate zones | Zone-based recommendations with curated imagery |
+| Authentication | Registration, login, email verification, password reset |
+| Cart & checkout | Line items, wishlist, discount codes, welcome offers |
+| Rewards | Plant-growth logic triggered after completed orders |
+| Administration | Expert and admin workspaces, user dashboard support |
+
+---
+
+## 4. Local Installation
+
+### 4.1 Prerequisites
+
+- Node.js and npm
+- XAMPP (or equivalent PHP + MySQL stack)
+- Composer (PHP dependencies)
+
+### 4.2 Procedure
+
+**Step 1 — Clone the repository**
 
 ```bash
 git clone https://github.com/GrowPal-team/GrowPal.git
 cd GrowPal
 ```
 
-### 2. Install Node dependencies
+**Step 2 — Install dependencies**
 
 ```bash
 npm install
+composer install
 ```
 
-### 3. Environment variables
+**Step 3 — Configure environment**
 
-Create a `.env` file in the project root (do not commit secrets). You can start from `.env.example`. At minimum Prisma expects:
+Copy `.env.example` to `.env` and set values for the local database and mail subsystem:
 
-```env
-DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/DATABASE_NAME"
-```
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Prisma connection string |
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | MySQL connection |
+| `DB_USERNAME`, `DB_PASSWORD` | Database credentials |
+| `PHP_API_BASE_URL` | PHP API root URL |
+| `GROWPAL_SITE_URL` | Public site base URL |
+| `SESSION_SECRET` | Session signing |
+| `GROWPAL_CODE_SECRET` | Reward / promo code signing |
 
-Adjust user, password, host, port, and database name to match your MySQL setup.
+**Step 4 — Initialise the database**
 
-### 4. Database
+1. Create a MySQL database (e.g. `growpal_db`).
+2. Import `database.sql` when starting from an empty schema.
+3. Ensure PHP and Next.js reference the same database.
+4. Generate the Prisma client:
 
 ```bash
 npx prisma generate
-npx prisma db push
 ```
 
-Optional: use `npm run verify-db` to sanity-check DB connectivity.
-
-Prepare production-ready shop data and reward codes:
+**Step 5 — Optional data synchronisation**
 
 ```bash
+npm run verify-db
 npm run setup:reward-codes
 npm run seed:shop
 ```
 
-PHP-side migrations and seeds (admin, feedback, etc.) live under `scripts/` when you need them.
+**Step 6 — Run locally**
 
-### 5. Run the Next.js app
+Start Apache and MySQL, then:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+| Service | URL |
+|---------|-----|
+| Next.js application | `http://localhost:3000` |
+| PHP API base | `http://localhost/GrowPal/api` |
 
-### 6. PHP / XAMPP
+### 4.3 Deployment note
 
-Point your virtual host or document root so that PHP files under this project (`api/`, `index.php`, etc.) are served by Apache. Configure DB credentials in `config/database.php` (and related config) to match your environment.
-
-For the Next.js API bridge, set:
-
-```env
-PHP_API_BASE_URL="http://localhost/GrowPal/api"
-GROWPAL_SITE_URL="http://localhost:3000"
-```
+GitHub Pages is unsuitable for this codebase because the product requires server-side rendering, API routes, and a database. Production deployment should use a platform that supports Node.js, PHP (where required), and MySQL (e.g. Railway, Render, or comparable PaaS). Configure SMTP variables in `.env` for outbound mail.
 
 ---
 
-## NPM scripts
+## 5. Illustrations
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start Next.js in development (webpack) |
-| `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run verify-db` | Quick DB check |
-| `npm run seed:shop` | Seed or refresh the Prisma shop catalog |
-| `npm run setup:reward-codes` | Create the reward code table used by My Plant coupons |
-| `npm run prepare:deploy` | Verify DB, prepare reward codes, seed shop data, and build production |
+**Figure 1.** Home page — primary entry and navigation.
 
----
+![GrowPal home page](docs/screenshots/home.png)
 
-## Project layout (high level)
+**Figure 2.** Shop — catalog and filter interface.
 
-```
-app/           Next.js App Router pages and API routes
-components/    React components (UI, admin, expert, home, …)
-lib/           Shared TS utilities (Prisma, sessions, shop, …)
-prisma/        Schema and migrations
-api/           PHP endpoints (auth, profile, …)
-config/        PHP config (database, email)
-public/        Static assets
-scripts/       PHP/Node maintenance and seed scripts
-```
+![GrowPal shop page](docs/screenshots/shop.png)
+
+**Figure 3.** Climate zones — zone-based plant recommendations.
+
+![GrowPal climate zones page](docs/screenshots/climate-zones.png)
 
 ---
 
-## What GitHub does (and does not) include
+## 6. Development focus
 
-Cloning gives you the **source tree** tracked in Git. Teammates still need to create or install locally:
+The implementation emphasises:
 
-| Item | Action |
-|------|--------|
-| `node_modules/` | Run `npm install` |
-| `.next/` | Created when you run `npm run dev` or `npm run build` |
-| `.env` | Create from your team’s template; never commit secrets |
-| `vendor/` (PHP) | Run `composer install` in the project root (uses `composer.json` / `composer.lock`) |
-
-If Apache/PHP cannot find PHPMailer or other Composer packages, `vendor/` is almost always missing until you run `composer install`.
+- interface clarity and consistent interaction patterns;
+- alignment between climate-zone logic and representative plant imagery;
+- deterministic shop filtering behaviour;
+- end-to-end authentication and checkout completeness;
+- modular structure to preserve maintainability across PHP and TypeScript boundaries.
 
 ---
 
-## Production deployment
+## 7. Repository and submission note
 
-GrowPal is a hybrid full-stack app. It is not suitable for GitHub Pages because it needs:
+This GitHub repository reflects a **one-time upload** of the GrowPal project for academic submission. It is **not** set up for continuous development.
 
-- Next.js server rendering and API routes
-- PHP endpoints for auth/mail bridge
-- MySQL
-- Persistent uploads
+| Aspect | Status |
+|--------|--------|
+| **Branches** | A single `main` branch only. No feature, release, or long-lived collaborator branches are maintained. |
+| **Ongoing work** | No active sprint cycle, issue board, or regular merge workflow is expected after submission. |
+| **Commit history** | Preserved as a record of the delivered version, not as a living production pipeline. |
+| **Future changes** | Any post-submission edits would be exceptional; reviewers should treat `main` as the submitted artefact. |
 
-### Environment checklist
-
-Make sure production defines at least:
-
-```env
-DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/growpal_db"
-DB_HOST="HOST"
-DB_PORT="3306"
-DB_NAME="growpal_db"
-DB_USERNAME="USER"
-DB_PASSWORD="PASSWORD"
-DB_ROOT_PASSWORD="ROOT_PASSWORD"
-GROWPAL_SITE_URL="https://your-domain.example"
-PHP_API_BASE_URL="https://your-domain.example/php-api"
-SESSION_SECRET="replace-with-a-long-random-secret"
-GROWPAL_CODE_SECRET="replace-with-a-second-random-secret"
-SMTP_ENABLED="true"
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USERNAME="your-smtp-user"
-SMTP_PASSWORD="your-smtp-password"
-SMTP_SECURE="tls"
-MAIL_FROM_EMAIL="no-reply@your-domain.example"
-MAIL_FROM_NAME="GrowPal"
-MAIL_REPLY_TO="support@your-domain.example"
-```
-
-### Docker option
-
-This repository now includes:
-
-- `Dockerfile` for Next.js production
-- `docker/php/Dockerfile` for PHP + Apache
-- `docker/nginx/default.conf` to route `/` to Next and `/php-api/*` to PHP
-- `docker-compose.yml` for `proxy + next + php + mysql`
-
-Typical deployment flow:
-
-```bash
-cp .env.example .env
-docker compose build
-docker compose up -d db
-docker compose run --rm next npm run prepare:deploy
-docker compose up -d php next proxy
-```
-
-Then point your domain to the server and set:
-
-```env
-GROWPAL_SITE_URL="https://your-domain.example"
-PHP_API_BASE_URL="https://your-domain.example/php-api"
-```
-
-### Railway deployment
-
-Railway is the easiest match for the current GrowPal stack because it supports MySQL directly.
-
-Recommended layout in one Railway project:
-
-1. `db` service: provision **MySQL**
-2. `php` service: deploy from `docker/php/Dockerfile`
-3. `next` service: deploy from root `Dockerfile`
-
-Suggested flow:
-
-1. Push this repo to GitHub.
-2. In Railway, create a new project from the repo.
-3. Add a MySQL service.
-4. Create a `php` service using the repo and set its Dockerfile path to `docker/php/Dockerfile`.
-5. Create a `next` service using the repo root `Dockerfile`.
-6. Set the `next` service as the public service and attach a domain or use the generated Railway subdomain.
-7. Set env vars on both app services:
-
-```env
-DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/growpal_db
-DB_HOST=HOST
-DB_PORT=3306
-DB_NAME=growpal_db
-DB_USERNAME=USER
-DB_PASSWORD=PASSWORD
-GROWPAL_SITE_URL=https://your-next-service.up.railway.app
-PHP_API_BASE_URL=https://your-php-service.up.railway.app/api
-SESSION_SECRET=replace-with-a-long-random-secret
-GROWPAL_CODE_SECRET=replace-with-a-second-random-secret
-```
-
-Then run on the `next` service once:
-
-```bash
-npm run prepare:deploy
-```
-
-Health checks:
-
-- Next: `/api/health`
-- PHP: `/api/health.php`
-
-Reference: [Railway deployment guides](https://docs.railway.com/guides/docker-compose)
-
-### Render deployment
-
-Render can also host GrowPal, but it is slightly more manual than Railway because you must wire multiple services yourself.
-
-Recommended layout:
-
-1. `growpal-mysql`: private MySQL service with persistent disk
-2. `growpal-php`: private Docker service using `docker/php/Dockerfile`
-3. `growpal-next`: public Docker web service using root `Dockerfile`
-
-Set on `growpal-next`:
-
-```env
-GROWPAL_SITE_URL=https://your-render-domain.onrender.com
-PHP_API_BASE_URL=http://growpal-php:80/api
-```
-
-Set matching database and SMTP vars on both app services.
-
-After first deploy, open a Render shell for the Next service and run:
-
-```bash
-npm run prepare:deploy
-```
-
-Use `/api/health` as the public health check path.
-
-References:
-
-- [Render Docker docs](https://render-web.app.render.com/docs/docker)
-- [Render MySQL docs](https://render.com/docs/deploy-mysql)
-
-### Shop readiness notes
-
-- The Next.js storefront under `/shop` is the production storefront.
-- Legacy PHP `shop.php` / `cart.php` / `checkout.php` should be treated as fallback or migration-era pages.
-- Catalog image fallbacks were updated to use deploy-safe remote images when legacy `/Web/*` and `/images/*` assets are missing.
-
-**Multiple people, one computer:** set Git identity **inside this repo** so commits match the right GitHub account:
-
-```bash
-git config user.name "Your GitHub name"
-git config user.email "your-verified-email@example.com"
-```
+If you are evaluating the project for coursework or assessment, use the commit history and `main` branch as the complete deliverable. Do not expect the branching model or release practices of a continuously maintained open-source product.
 
 ---
 
-## License
+## Document information
 
-Private project — all rights reserved unless otherwise stated by the owners.
+| Field | Value |
+|-------|-------|
+| Document type | Project README |
+| Last revised | May 2026 |

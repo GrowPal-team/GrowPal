@@ -14,7 +14,6 @@ const baseLinks: { href: string; label: string; requireAuth?: boolean }[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/climate-zones", label: "Growing zones" },
-  { href: "/my-plant", label: "My Plant", requireAuth: true },
   { href: "/planner", label: "My Space", requireAuth: true },
 ]
 
@@ -80,7 +79,7 @@ export function Navbar() {
         <Link href={homeHref} className="flex shrink-0 items-center gap-2 self-center">
           <div className="relative flex h-9 w-9 items-center justify-center">
             <Image
-              src="/icon.svg"
+              src="/images/Icon%20(1).jpeg"
               alt="GrowPal Logo"
               width={36}
               height={36}

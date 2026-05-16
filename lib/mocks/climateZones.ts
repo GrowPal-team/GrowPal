@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 import { Droplets, Mountain, Sun, Trees, Flower2 } from "lucide-react"
-import type { RecommendedPlant } from "@/lib/mocks/plantPresets"
+import { PLANT_PRESETS, type RecommendedPlant } from "@/lib/mocks/plantPresets"
 
 export type { RecommendedPlant } from "@/lib/mocks/plantPresets"
 
@@ -94,9 +94,6 @@ export function getZoneById(id: string): ClimateZone | undefined {
   return CLIMATE_ZONES.find((z) => z.id === id)
 }
 
-const plantImg = (photoId: string) =>
-  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=400&q=75`
-
 export const CLIMATE_ZONES: ClimateZone[] = [
   {
     id: "coastal-mediterranean",
@@ -121,19 +118,19 @@ export const CLIMATE_ZONES: ClimateZone[] = [
         name: "Lemon tree",
         category: "Outdoor trees",
         priceIls: 220,
-        image: plantImg("photo-1568569350062-ea9913a51789"),
+        image: PLANT_PRESETS.lemon.image,
       },
       {
         name: "Jasmine",
         category: "Indoor plants",
         priceIls: 95,
-        image: plantImg("photo-1597848212624-e593e39a0b7d"),
+        image: PLANT_PRESETS.jasmine.image,
       },
       {
         name: "Bougainvillea",
         category: "Outdoor trees",
         priceIls: 120,
-        image: plantImg("photo-1596725985750-8c7b6d58c88d"),
+        image: PLANT_PRESETS.bougainvillea.image,
       },
     ],
     sunExposure: "High",
@@ -165,19 +162,19 @@ export const CLIMATE_ZONES: ClimateZone[] = [
         name: "Olive tree",
         category: "Outdoor trees",
         priceIls: 280,
-        image: plantImg("photo-1599599810769-bcde5a160d32"),
+        image: PLANT_PRESETS.olive.image,
       },
       {
         name: "Fig tree",
         category: "Outdoor trees",
         priceIls: 190,
-        image: plantImg("photo-1622206151226-18ca2c9ab4a1"),
+        image: PLANT_PRESETS.fig.image,
       },
       {
         name: "Rosemary",
         category: "Herbs",
         priceIls: 45,
-        image: plantImg("photo-1515586000433-45406a8a874f"),
+        image: PLANT_PRESETS.rosemary.image,
       },
     ],
     sunExposure: "High",
@@ -209,19 +206,19 @@ export const CLIMATE_ZONES: ClimateZone[] = [
         name: "Date palm",
         category: "Outdoor trees",
         priceIls: 350,
-        image: plantImg("photo-1548550023-2bdb3c5beed7"),
+        image: PLANT_PRESETS.datePalm.image,
       },
       {
         name: "Basil",
         category: "Herbs",
         priceIls: 35,
-        image: plantImg("photo-1618377382346-06f61c4ed930"),
+        image: PLANT_PRESETS.basil.image,
       },
       {
         name: "Hibiscus",
         category: "Outdoor plants",
         priceIls: 85,
-        image: plantImg("photo-1593691509543-c55fb32e5cee"),
+        image: PLANT_PRESETS.hibiscus.image,
       },
     ],
     sunExposure: "High",
@@ -253,19 +250,19 @@ export const CLIMATE_ZONES: ClimateZone[] = [
         name: "Stone fruit sapling",
         category: "Outdoor trees",
         priceIls: 210,
-        image: plantImg("photo-1528821128474-27f963b062bf"),
+        image: PLANT_PRESETS.stoneFruit.image,
       },
       {
         name: "Fern mix",
         category: "Shade plants",
         priceIls: 65,
-        image: plantImg("photo-1596325502650-36c7a777e1a7"),
+        image: PLANT_PRESETS.fern.image,
       },
       {
         name: "Mint",
         category: "Herbs",
         priceIls: 30,
-        image: plantImg("photo-1615474040672-112d40b0ff9e"),
+        image: PLANT_PRESETS.mint.image,
       },
     ],
     sunExposure: "Medium",
@@ -297,19 +294,19 @@ export const CLIMATE_ZONES: ClimateZone[] = [
         name: "Succulent garden kit",
         category: "Indoor plants",
         priceIls: 110,
-        image: plantImg("photo-1459411552884-841db9b3cc2a"),
+        image: PLANT_PRESETS.succulentMix.image,
       },
       {
         name: "Acacia sapling",
         category: "Outdoor trees",
         priceIls: 165,
-        image: plantImg("photo-1502082553048-f009c37129b9"),
+        image: PLANT_PRESETS.acacia.image,
       },
       {
         name: "Desert sage",
         category: "Herbs",
         priceIls: 40,
-        image: plantImg("photo-1466692476868-aef1dfb1e735"),
+        image: PLANT_PRESETS.rosemary.image,
       },
     ],
     sunExposure: "High",

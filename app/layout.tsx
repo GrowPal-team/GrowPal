@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   title: 'GrowPal - Rooted in Home, Growing for Palestine',
   description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/images/Icon%20(1).jpeg',
+    apple: '/images/Icon%20(1).jpeg',
   },
 }
 

@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <Image
-              src="/icon.svg"
+              src="/images/Icon%20(1).jpeg"
               alt="GrowPal"
               width={100}
               height={100}

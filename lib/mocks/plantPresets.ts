@@ -1,4 +1,4 @@
-/** Shared plant cards for climate UI — images via Unsplash (license: Unsplash). */
+/** Shared plant cards for climate UI. Prefer local curated assets, then stable remote fallbacks. */
 
 export type RecommendedPlant = {
   name: string
@@ -7,8 +7,9 @@ export type RecommendedPlant = {
   image: string
 }
 
-const u = (path: string) =>
-  `https://images.unsplash.com/${path}?auto=format&fit=crop&w=600&q=80`
+const localAsset = (path: string) => encodeURI(path)
+
+const remoteAsset = (url: string) => url
 
 /** Curated library: each image matches the plant name theme. */
 export const PLANT_PRESETS = {
@@ -16,199 +17,229 @@ export const PLANT_PRESETS = {
     name: "Dwarf lemon (Citrus)",
     category: "Outdoor / balcony citrus",
     priceIls: 220,
-    image: u("photo-1568569350062-ea9913a51789"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1744028837324-469cbadb11be?fm=jpg&q=60&w=1600&auto=format&fit=crop"
+      ),
   },
   jasmine: {
     name: "Arabian jasmine (Jasminum sambac)",
     category: "Balcony / trellis",
     priceIls: 95,
-    image: u("photo-1597848212624-e593e39a0b7d"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1768113802480-d98319a295d0?fm=jpg&q=60&w=1600&auto=format&fit=crop"
+      ),
   },
   bougainvillea: {
     name: "Bougainvillea",
     category: "Outdoor sun wall",
     priceIls: 120,
-    image: u("photo-1596725985750-8c7b6d58c88d"),
+    image: localAsset("/Web/Bougainvillea1.png"),
   },
   olive: {
     name: "Olive tree (Olea europaea)",
     category: "Garden tree",
     priceIls: 280,
-    image: u("photo-1599599810769-bcde5a160d32"),
+    image: localAsset("/images/plant-3.jpg"),
   },
   fig: {
     name: "Common fig (Ficus carica)",
     category: "Garden / sunny yard",
     priceIls: 190,
-    image: u("photo-1622206151226-18ca2c9ab4a1"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   rosemary: {
     name: "Rosemary",
     category: "Herbs — outdoor",
     priceIls: 45,
-    image: u("photo-1515586000433-45406a8a874f"),
+    image: localAsset("/Web/Rosemary1.jpg"),
   },
   datePalm: {
     name: "Date palm (Phoenix dactylifera)",
     category: "Garden — hot climate",
     priceIls: 350,
-    image: u("photo-1548550023-2bdb3c5beed7"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   basil: {
     name: "Sweet basil",
     category: "Herbs — kitchen / sun",
     priceIls: 35,
-    image: u("photo-1618377382346-06f61c4ed930"),
+    image: localAsset("/images/plant-2.jpg"),
   },
   hibiscus: {
     name: "Chinese hibiscus",
     category: "Outdoor tropical look",
     priceIls: 85,
-    image: u("photo-1593691509543-c55fb32e5cee"),
+    image: localAsset("/Web/Petunia1.jpg"),
   },
   stoneFruit: {
     name: "Stone fruit sapling (plum / peach)",
     category: "Garden tree",
     priceIls: 210,
-    image: u("photo-1528821128474-27f963b062bf"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1528821128474-27f963b062bf?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   fern: {
     name: "Boston fern",
     category: "Indoor humidity lover",
     priceIls: 65,
-    image: u("photo-1596325502650-36c7a777e1a7"),
+    image: localAsset("/images/indoor-plants.jpg"),
   },
   mint: {
     name: "Spearmint",
     category: "Herbs — part shade OK",
     priceIls: 30,
-    image: u("photo-1615474040672-112d40b0ff9e"),
+    image: localAsset("/images/MintCollection.png"),
   },
   succulentMix: {
     name: "Succulent mix (Echeveria / sedum)",
     category: "Indoor bright window",
     priceIls: 110,
-    image: u("photo-1459411552884-841db9b3cc2a"),
+    image: localAsset("/images/plant-4.jpg"),
   },
   acacia: {
     name: "Acacia / desert shade tree",
     category: "Garden — dry heat",
     priceIls: 165,
-    image: u("photo-1502082553048-f009c37129b9"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   lavender: {
     name: "Lavender",
     category: "Balcony / full sun",
     priceIls: 48,
-    image: u("photo-1466692476868-aef1dfb1e735"),
+    image: localAsset("/images/plant-5.jpg"),
   },
   monstera: {
     name: "Monstera deliciosa",
     category: "Indoor — bright indirect",
     priceIls: 135,
-    image: u("photo-1545241047-60850a0dee5a"),
+    image: localAsset("/images/plant-1.jpg"),
   },
   snakePlant: {
     name: "Snake plant (Sansevieria)",
     category: "Indoor — low water",
     priceIls: 75,
-    image: u("photo-1593482892290-4330d260c54e"),
+    image: localAsset("/images/plant-6.jpg"),
   },
   pothos: {
     name: "Golden pothos",
     category: "Indoor / office",
     priceIls: 55,
-    image: u("photo-1614594975525-451453c2fe3c"),
+    image: localAsset("/Web/Pothos1.jpg"),
   },
   tomatoCherry: {
     name: "Cherry tomato (container)",
     category: "Balcony / rooftop veg",
     priceIls: 42,
-    image: u("photo-1592841200221-5369f7222076"),
+    image: localAsset("/images/TomatoPlants_Cherry.png"),
   },
   pepperBell: {
     name: "Bell pepper (container)",
     category: "Balcony — summer crop",
     priceIls: 38,
-    image: u("photo-1563565375-f3fdfdbefa83"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   geranium: {
     name: "Pelargonium (geranium)",
     category: "Balcony sun",
     priceIls: 52,
-    image: u("photo-1599687266540-d01efe7f8ee5"),
+    image: localAsset("/Web/Geranium1.png"),
   },
   grapeVine: {
     name: "Table grape vine",
     category: "Garden pergola",
     priceIls: 175,
-    image: u("photo-1595433707802-6b2626b1b49d"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   aloe: {
     name: "Aloe vera",
     category: "Indoor / sunny sill",
     priceIls: 40,
-    image: u("photo-1509423350716-97f9360b3e98"),
+    image: localAsset("/Web/Aloe Vera1.jpeg"),
   },
   parsley: {
     name: "Flat-leaf parsley",
     category: "Herbs — part sun",
     priceIls: 28,
-    image: u("photo-1591955506264-3f5a683cc15a"),
+    image: localAsset("/images/hero-garden.jpg"),
   },
   cyclamen: {
     name: "Cyclamen (winter bloomer)",
     category: "Indoor cool season",
     priceIls: 62,
-    image: u("photo-1459156212013-c038eeb9d6c0"),
+    image: localAsset("/Web/Petunia2.jpg"),
   },
   eggplant: {
     name: "Eggplant (container)",
     category: "Rooftop / hot summer",
     priceIls: 36,
-    image: u("photo-1593179886159-fb6c6b9910c2"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=1600&q=80"
+      ),
   },
   marigold: {
     name: "French marigold",
     category: "Garden / pest companion",
     priceIls: 22,
-    image: u("photo-1490750967868-88aa4486c946"),
+    image: localAsset("/Web/African Marigold - Any Color1.jpg"),
   },
   pomegranate: {
     name: "Pomegranate shrub (Punica granatum)",
     category: "Garden / sunny wall",
     priceIls: 195,
-    image: u("photo-1551262128-a0d67cfb099f"),
+    image:
+      remoteAsset(
+        "https://images.unsplash.com/photo-1631641482600-b3448b29d17a?fm=jpg&q=60&w=1600&auto=format&fit=crop"
+      ),
   },
   thyme: {
     name: "Common thyme",
     category: "Herbs — sun & drainage",
     priceIls: 32,
-    image: u("photo-1591955506264-3f5a683cc15a"),
+    image: localAsset("/images/hero-garden.jpg"),
   },
   zucchini: {
     name: "Zucchini (container)",
     category: "Rooftop / summer veg",
     priceIls: 34,
-    image: u("photo-1593179886159-fb6c6b9910c2"),
+    image: localAsset("/images/TomatoPlants_Cherry.png"),
   },
   cucumber: {
     name: "Cucumber (trellis pot)",
     category: "Balcony climber",
     priceIls: 31,
-    image: u("photo-1592841200221-5369f7222076"),
+    image: localAsset("/images/TomatoPlants_Cherry.png"),
   },
   peaceLily: {
     name: "Peace lily (Spathiphyllum)",
     category: "Indoor — shade tolerant",
     priceIls: 88,
-    image: u("photo-1596547037025-a81da3a50ae2"),
+    image: localAsset("/Web/Peace Lily1.jpg"),
   },
   chives: {
     name: "Chives",
     category: "Herbs — pot / windowsill",
     priceIls: 26,
-    image: u("photo-1618377382346-06f61c4ed930"),
+    image: localAsset("/images/hero-garden.jpg"),
   },
 } satisfies Record<string, RecommendedPlant>
 

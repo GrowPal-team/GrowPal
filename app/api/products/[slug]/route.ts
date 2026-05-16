@@ -7,10 +7,6 @@ function isUsableCatalogImage(src: string | null | undefined) {
   const normalized = src.trim()
   if (!normalized) return false
   if (normalized.includes("placeholder")) return false
-  if (normalized.startsWith("/Web/")) return false
-  if (normalized.startsWith("/images/")) return false
-  if (normalized.startsWith("Web/")) return false
-  if (normalized.startsWith("images/")) return false
   return true
 }
 
@@ -57,7 +53,7 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
       waterLevel: String(product.water_level),
       spaceType: spaceTypeValue,
     })
-    const mainImage = isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage
+    const mainImage = enhancement.primaryImage || (isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage)
     const images = Array.from(new Set([mainImage, enhancement.secondaryImage].filter(Boolean)))
 
     let related = await prisma.product.findMany({
@@ -94,15 +90,14 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
       slug: p.slug,
       price: Number(p.price_ils),
       image:
-        (isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : "") ||
         enrichProductCopy({
-        slug: p.slug,
-        category: p.categoryId === product.categoryId ? product.category?.name : null,
-        baseDescription: p.description,
-        sunExposure: String(p.sun_exposure),
-        waterLevel: String(p.water_level),
-        spaceType: p.space_types,
-      }).primaryImage,
+          slug: p.slug,
+          category: p.categoryId === product.categoryId ? product.category?.name : null,
+          baseDescription: p.description,
+          sunExposure: String(p.sun_exposure),
+          waterLevel: String(p.water_level),
+          spaceType: p.space_types,
+        }).primaryImage || (isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : ""),
     }))
 
     return NextResponse.json({

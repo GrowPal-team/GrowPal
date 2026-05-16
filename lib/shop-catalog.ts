@@ -6,6 +6,10 @@ type CatalogEnhancement = {
   idealFor: string
 }
 
+function localAsset(path: string) {
+  return encodeURI(path)
+}
+
 const REMOTE_WEB_IMAGE_ROTATION = [
   "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=1200&q=80",
@@ -22,7 +26,7 @@ function hashText(value: string) {
 }
 
 function webImage(filename: string) {
-  return REMOTE_WEB_IMAGE_ROTATION[hashText(filename) % REMOTE_WEB_IMAGE_ROTATION.length]
+  return localAsset(`/Web/${filename}`)
 }
 
 const GENERIC_IMAGES = {
@@ -46,36 +50,31 @@ const GENERIC_IMAGES = {
     "https://images.unsplash.com/photo-1566875538164-c9f7a89cc1b5?auto=format&fit=crop&w=1200&q=80",
   bloomSecondary:
     "https://images.unsplash.com/photo-1498998758485-cf0d9103a272?auto=format&fit=crop&w=1200&q=80",
-  toolsPrimary: webImage("Gardening Essentials Combo- Gardening Gloves, Garden Tool Kit & Watering Can1.jpg"),
+  toolsPrimary: localAsset("/images/garden-supplies.jpg"),
   toolsSecondary: webImage("Gardening Essentials Combo- Gardening Gloves, Garden Tool Kit & Watering Can2.jpg"),
 }
 
 const PRODUCT_ENHANCEMENTS: Record<string, CatalogEnhancement> = {
   "basil-starter-kit": {
-    primaryImage:
-      "https://images.unsplash.com/photo-1748576724273-c1ed05911708?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    primaryImage: localAsset("/images/BasilStarterKit.jpg"),
     secondaryImage:
-      "https://images.unsplash.com/photo-1744044021853-ee40e35c9177?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
     shortDescription:
       "A compact basil kit for kitchens, sunny windows, and beginner herb growers who want fast, fragrant harvests.",
     careHighlights: ["Needs 6+ hours of sun", "Keep soil lightly moist", "Pinch tips often for bushier growth"],
     idealFor: "Sunny kitchens and compact herb corners",
   },
   "tomato-cherry": {
-    primaryImage:
-      "https://images.unsplash.com/photo-1682879398606-a9606229ecb2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    secondaryImage:
-      "https://images.unsplash.com/photo-1749776016335-374d2a350ec6?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    primaryImage: localAsset("/images/TomatoPlants_Cherry.png"),
+    secondaryImage: localAsset("/images/plant-2.jpg"),
     shortDescription:
       "Productive cherry tomatoes for balconies and containers, with sweet fruit and a reliable summer harvest.",
     careHighlights: ["Loves full sun", "Water consistently", "Add support or stakes early"],
     idealFor: "Balconies, containers, and edible home gardens",
   },
   "mint-collection": {
-    primaryImage:
-      "https://images.unsplash.com/photo-1648036933917-762235e009c7?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    secondaryImage:
-      "https://images.unsplash.com/photo-1756026116113-0c22d6d99f50?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    primaryImage: localAsset("/images/MintCollection.png"),
+    secondaryImage: localAsset("/images/MintCollection.png"),
     shortDescription:
       "A refreshing mix of mint varieties that grows quickly, smells amazing, and brings flavor to tea and cooking.",
     careHighlights: ["Prefers moist soil", "Give partial to bright light", "Trim regularly to keep it full"],

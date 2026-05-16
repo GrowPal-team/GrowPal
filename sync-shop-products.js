@@ -2,6 +2,10 @@ const { PrismaClient } = require("@prisma/client")
 
 const prisma = new PrismaClient()
 
+function localAsset(path) {
+  return encodeURI(path)
+}
+
 const REMOTE_WEB_IMAGE_ROTATION = [
   "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=1200&q=80",
@@ -18,7 +22,7 @@ function hashText(value) {
 }
 
 function webImage(filename) {
-  return REMOTE_WEB_IMAGE_ROTATION[hashText(filename) % REMOTE_WEB_IMAGE_ROTATION.length]
+  return localAsset(`/Web/${filename}`)
 }
 
 const categories = [
@@ -66,6 +70,57 @@ const products = [
     eco_score: 76,
     space_types: "Balcony,Garden,Indoor",
     stock_quantity: 35,
+  },
+  {
+    name: "Basil Starter Kit",
+    slug: "basil-starter-kit",
+    description: "Fresh basil plants perfect for cooking. Includes 3 healthy basil plants with care instructions.",
+    price_ils: 25,
+    imageUrl: localAsset("/images/BasilStarterKit.jpg"),
+    category: "Herbs & Vegetables",
+    sun_exposure: "Full_Sun",
+    water_level: "Medium",
+    maintenance_level: "Low",
+    weight_level: "Light",
+    climate_zones: "All",
+    seasons: "All Year",
+    eco_score: 75,
+    space_types: "Indoor,Balcony",
+    stock_quantity: 38,
+  },
+  {
+    name: "Tomato Plants - Cherry",
+    slug: "tomato-cherry",
+    description: "Sweet cherry tomato plants. High yield, perfect for containers. Includes 2 plants.",
+    price_ils: 35,
+    imageUrl: localAsset("/images/TomatoPlants_Cherry.png"),
+    category: "Herbs & Vegetables",
+    sun_exposure: "Full_Sun",
+    water_level: "High",
+    maintenance_level: "Medium",
+    weight_level: "Medium",
+    climate_zones: "All",
+    seasons: "Spring,Summer,Autumn",
+    eco_score: 80,
+    space_types: "Balcony,Garden",
+    stock_quantity: 27,
+  },
+  {
+    name: "Mint Collection",
+    slug: "mint-collection",
+    description: "Variety pack of 4 mint types: Spearmint, Peppermint, Chocolate Mint, and Apple Mint.",
+    price_ils: 30,
+    imageUrl: localAsset("/images/MintCollection.png"),
+    category: "Herbs & Vegetables",
+    sun_exposure: "Partial_Sun",
+    water_level: "High",
+    maintenance_level: "Low",
+    weight_level: "Light",
+    climate_zones: "All",
+    seasons: "All Year",
+    eco_score: 70,
+    space_types: "Indoor,Balcony",
+    stock_quantity: 14,
   },
   {
     name: "African Marigold",
@@ -344,7 +399,7 @@ const products = [
     slug: "gardening-essentials-combo",
     description: "Starter set with gloves, hand tools, and a watering can for daily plant care.",
     price_ils: 79,
-    imageUrl: webImage("Gardening Essentials Combo- Gardening Gloves, Garden Tool Kit & Watering Can1.jpg"),
+    imageUrl: localAsset("/images/garden-supplies.jpg"),
     category: "Plant Care Tools",
     sun_exposure: "Full_Sun",
     water_level: "Low",

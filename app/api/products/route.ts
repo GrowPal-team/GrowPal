@@ -7,11 +7,41 @@ function isUsableCatalogImage(src: string | null | undefined) {
   const normalized = src.trim()
   if (!normalized) return false
   if (normalized.includes("placeholder")) return false
-  if (normalized.startsWith("/Web/")) return false
-  if (normalized.startsWith("/images/")) return false
-  if (normalized.startsWith("Web/")) return false
-  if (normalized.startsWith("images/")) return false
   return true
+}
+
+function parseSpaceTypes(value: string | null | undefined) {
+  if (!value) return []
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+}
+
+function getPrimarySpaceType(spaceTypes: string[], categoryName?: string | null) {
+  if (spaceTypes.length > 0) return spaceTypes[0]
+
+  if (categoryName) {
+    if (categoryName.includes("Indoor") || categoryName.includes("Succulent")) return "Indoor"
+    if (categoryName.includes("Herb")) return "Balcony"
+    if (categoryName.includes("Tree")) return "Garden"
+    if (categoryName.includes("Flower")) return "Balcony"
+  }
+
+  return "All"
+}
+
+function normalizeSunExposureForFilter(value: string | null) {
+  switch (value) {
+    case "High":
+      return ["Full_Sun"]
+    case "Medium":
+      return ["Partial_Sun", "Partial_Shade"]
+    case "Low":
+      return ["Full_Shade"]
+    default:
+      return value ? [value] : []
+  }
 }
 
 // إنشاء instance واحد من Prisma Client
@@ -48,27 +78,8 @@ export async function GET(request: Request) {
     // تحويل البيانات إلى الصيغة المطلوبة
     const formattedProducts = products.map((product) => {
       // تحديد spaceType من space_types أو category
-      let spaceTypeValue = "All"
-      if (product.space_types) {
-        const spaceTypes = product.space_types.split(',').map(s => s.trim())
-        if (spaceTypes.includes('Indoor')) spaceTypeValue = "Indoor"
-        else if (spaceTypes.includes('Balcony')) spaceTypeValue = "Balcony"
-        else if (spaceTypes.includes('Garden')) spaceTypeValue = "Garden"
-        else if (spaceTypes.includes('Rooftop')) spaceTypeValue = "Rooftop"
-        else if (spaceTypes.includes('Office')) spaceTypeValue = "Office"
-      }
-      
-      if (spaceTypeValue === "All" && product.category?.name) {
-        if (product.category.name.includes("Indoor") || product.category.name.includes("Succulent")) {
-          spaceTypeValue = "Indoor"
-        } else if (product.category.name.includes("Herb")) {
-          spaceTypeValue = "Balcony"
-        } else if (product.category.name.includes("Tree")) {
-          spaceTypeValue = "Garden"
-        } else if (product.category.name.includes("Flower")) {
-          spaceTypeValue = "Balcony"
-        }
-      }
+      const spaceTypes = parseSpaceTypes(product.space_types)
+      const spaceTypeValue = getPrimarySpaceType(spaceTypes, product.category?.name)
 
       // تحديد budget من السعر
       let budgetValue = "$"
@@ -90,7 +101,7 @@ export async function GET(request: Request) {
         waterLevel,
         spaceType: spaceTypeValue,
       })
-      const primaryImage = isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage
+      const primaryImage = enhancement.primaryImage || (isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage)
 
       return {
         id: product.id,
@@ -101,6 +112,7 @@ export async function GET(request: Request) {
         image: primaryImage,
         secondaryImage: enhancement.secondaryImage,
         spaceType: spaceTypeValue,
+        spaceTypes,
         sunExposure: sunExposure,
         waterLevel: waterLevel,
         budget: budgetValue,
@@ -117,11 +129,12 @@ export async function GET(request: Request) {
     let filtered = formattedProducts
 
     if (spaceType && spaceType !== "all") {
-      filtered = filtered.filter((p) => p.spaceType === spaceType)
+      filtered = filtered.filter((p) => p.spaceTypes.includes(spaceType) || p.spaceType === spaceType)
     }
 
     if (sunExposure && sunExposure !== "all") {
-      filtered = filtered.filter((p) => p.sunExposure === sunExposure)
+      const allowedSunExposure = normalizeSunExposureForFilter(sunExposure)
+      filtered = filtered.filter((p) => allowedSunExposure.includes(p.sunExposure))
     }
 
     if (waterLevel && waterLevel !== "all") {

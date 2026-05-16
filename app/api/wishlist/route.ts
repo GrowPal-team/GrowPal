@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
+import { enrichProductCopy } from "@/lib/shop-catalog"
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
 const prisma = globalForPrisma.prisma ?? new PrismaClient()
@@ -13,10 +14,6 @@ function isUsableWishlistImage(src: string | null | undefined) {
   const normalized = src.trim()
   if (!normalized) return false
   if (normalized.includes("placeholder")) return false
-  if (normalized.startsWith("/Web/")) return false
-  if (normalized.startsWith("/images/")) return false
-  if (normalized.startsWith("Web/")) return false
-  if (normalized.startsWith("images/")) return false
   return true
 }
 
@@ -39,11 +36,19 @@ export async function GET(request: Request) {
     const items = rows.map((w) => {
       const p = w.products
       const price = Number(p.price_ils)
+      const enhancement = enrichProductCopy({
+        slug: p.slug,
+        category: p.category?.name,
+        baseDescription: p.description,
+        sunExposure: String(p.sun_exposure),
+        waterLevel: String(p.water_level),
+        spaceType: p.space_types,
+      })
       return {
         id: p.id,
         name: p.name,
         price,
-        image: isUsableWishlistImage(p.imageUrl) ? p.imageUrl!.trim() : FALLBACK_WISHLIST_IMAGE,
+        image: enhancement.primaryImage || (isUsableWishlistImage(p.imageUrl) ? p.imageUrl!.trim() : FALLBACK_WISHLIST_IMAGE),
         slug: p.slug,
       }
     })

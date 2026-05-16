@@ -34,7 +34,7 @@ $register_href = growpal_canonical_url('/register', 'register.php');
             <div class="header-content">
                 <div class="logo">
                     <a href="index.php">
-                        <h1>GrowPal</h1>
+                        <img src="public/images/Icon%20(1).jpeg" alt="GrowPal logo" style="height: 48px; width: auto; display: block;">
                     </a>
                 </div>
                 <nav class="main-nav" id="mainNav">

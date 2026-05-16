@@ -49,6 +49,13 @@ const CATEGORY_COPY: Record<string, string> = {
   "Plant Care Tools": "Smart essentials for pruning, watering, and day-to-day plant care.",
 }
 
+const BUDGET_OPTIONS = [
+  { value: "all", label: "All Budgets", hint: "Show every price range" },
+  { value: "$", label: "Budget", hint: "Simple starter picks" },
+  { value: "$$", label: "Mid-Range", hint: "Balanced everyday choices" },
+  { value: "$$$", label: "Premium", hint: "Larger or more curated picks" },
+]
+
 export default function ShopPage() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
@@ -130,6 +137,8 @@ export default function ShopPage() {
 
     return [...ordered, ...remaining]
   }, [filtered])
+
+  const selectedBudget = BUDGET_OPTIONS.find((option) => option.value === budget) ?? BUDGET_OPTIONS[0]
 
   const renderProductCard = (product: Product) => {
     const href = `/product/${encodeURIComponent(product.slug || String(product.id))}`
@@ -286,14 +295,31 @@ export default function ShopPage() {
               </Select>
 
               <Select value={budget} onValueChange={setBudget}>
-                <SelectTrigger className="w-[140px] rounded-xl">
-                  <SelectValue placeholder="Budget" />
+                <SelectTrigger className="w-[190px] rounded-2xl border-primary/20 bg-card px-4 py-3 shadow-sm transition-colors hover:border-primary/40 focus:ring-primary/20">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                      {selectedBudget.value === "all" ? "Any" : selectedBudget.value}
+                    </span>
+                    <div className="min-w-0 text-left">
+                      <p className="truncate text-sm font-semibold text-foreground">{selectedBudget.label}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">{selectedBudget.hint}</p>
+                    </div>
+                  </div>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Budgets</SelectItem>
-                  <SelectItem value="$">$ Budget</SelectItem>
-                  <SelectItem value="$$">$$ Mid-Range</SelectItem>
-                  <SelectItem value="$$$">$$$ Premium</SelectItem>
+                <SelectContent className="rounded-2xl border-primary/15 p-2 shadow-xl">
+                  {BUDGET_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="rounded-xl px-3 py-3">
+                      <div className="flex items-center gap-3">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                          {option.value === "all" ? "Any" : option.value}
+                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-foreground">{option.label}</span>
+                          <span className="text-[11px] text-muted-foreground">{option.hint}</span>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

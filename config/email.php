@@ -21,7 +21,7 @@ define('SMTP_PASSWORD', getenv('SMTP_PASSWORD') ?: '');
 define('SMTP_SECURE', getenv('SMTP_SECURE') ?: 'tls');
 
 $logoPathFromEnv = getenv('GROWPAL_LOGO_PATH') ?: '';
-$defaultLogoPath = __DIR__ . '/../public/icon.svg';
+$defaultLogoPath = __DIR__ . '/../public/images/Icon (1).jpeg';
 define('LOGO_PATH', $logoPathFromEnv !== '' ? $logoPathFromEnv : $defaultLogoPath);
 
 define('SITE_PUBLIC_URL', rtrim(getenv('GROWPAL_SITE_URL') ?: 'http://localhost:3000', '/'));

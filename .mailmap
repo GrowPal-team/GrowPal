@@ -1,0 +1,6 @@
+# Normalize removed / wrong identities into the primary maintainer account.
+# Format: Proper Name <proper@email> <old@email>
+#         Proper Name <proper@email> improper name <old@email>
+
+salynajjar <salynajjar923@gmail.com> SallyNa3 <s12217451@stu.najah.edu>
+salynajjar <salynajjar923@gmail.com> <s12217451@stu.najah.edu>

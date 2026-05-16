@@ -1,4 +1,3 @@
-// LocalStorage Management
 const Storage = {
     get: (key) => {
         try {
@@ -21,7 +20,6 @@ const Storage = {
     }
 };
 
-// Cart Management
 const Cart = {
     get: () => Storage.get('cart') || [],
     add: (product) => {
@@ -73,7 +71,6 @@ const Cart = {
     }
 };
 
-// Wishlist Management
 const Wishlist = {
     get: () => Storage.get('wishlist') || [],
     add: (product) => {
@@ -104,7 +101,6 @@ const Wishlist = {
     }
 };
 
-// Comments Management
 const Comments = {
     get: (page) => {
         const key = `comments_${page || 'index'}`;
@@ -123,7 +119,32 @@ const Comments = {
     }
 };
 
-// Mobile Menu Toggle
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+    }[character]));
+}
+
+function escapeJsString(value) {
+    return String(value ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'");
+}
+
+function renderItemImage(item) {
+    if (item?.image) {
+        const safeImageUrl = escapeHtml(item.image);
+        const safeName = escapeHtml(item.name || 'Product');
+        return `<img src="${safeImageUrl}" alt="${safeName}" onerror="this.remove()">`;
+    }
+
+    return '<span style="font-size: 2.25rem;">🌿</span>';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const mobileToggle = document.getElementById('mobileMenuToggle');
     const mainNav = document.getElementById('mainNav');
@@ -134,21 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Update cart and wishlist counts on page load
     Cart.updateCount();
     Wishlist.updateCount();
 
-    // Initialize sliders
     initSliders();
-
-    // Initialize FAQ
     initFAQ();
-
-    // Initialize product interactions
     initProductInteractions();
 });
 
-// Slider Functionality
 function initSliders() {
     const sliders = document.querySelectorAll('.slider-container');
     
@@ -180,14 +194,12 @@ function initSliders() {
             showSlide(currentSlide);
         };
 
-        // Navigation buttons
         const nextBtn = container.parentElement.querySelector('.next');
         const prevBtn = container.parentElement.querySelector('.prev');
         
         if (nextBtn) nextBtn.addEventListener('click', nextSlide);
         if (prevBtn) prevBtn.addEventListener('click', prevSlide);
 
-        // Dot navigation
         dots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 currentSlide = index;
@@ -195,7 +207,6 @@ function initSliders() {
             });
         });
 
-        // Auto-play
         if (slides.length > 1) {
             setInterval(nextSlide, 5000);
         }
@@ -204,7 +215,6 @@ function initSliders() {
     });
 }
 
-// FAQ Accordion
 function initFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -218,9 +228,7 @@ function initFAQ() {
     });
 }
 
-// Product Interactions
 function initProductInteractions() {
-    // Add to cart buttons
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -236,7 +244,6 @@ function initProductInteractions() {
                 image: productImage
             });
 
-            // Show feedback
             btn.textContent = 'Added!';
             btn.style.background = 'var(--success-color)';
             setTimeout(() => {
@@ -246,7 +253,6 @@ function initProductInteractions() {
         });
     });
 
-    // Add to wishlist buttons
     document.querySelectorAll('.add-to-wishlist').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -271,7 +277,6 @@ function initProductInteractions() {
     });
 }
 
-// Cart Page Functions
 function renderCart() {
     const cart = Cart.get();
     const container = document.getElementById('cartItems');
@@ -286,22 +291,22 @@ function renderCart() {
     }
 
     container.innerHTML = cart.map(item => `
-        <div class="cart-item fade-in">
+        <div class="cart-item fade-in" data-item-id="${escapeHtml(item.id)}">
             <div class="item-image">
-                <span style="font-size: 3rem;">🧼</span>
+                ${renderItemImage(item)}
             </div>
             <div class="item-details">
-                <h3 class="item-title">${item.name}</h3>
+                <h3 class="item-title">${escapeHtml(item.name)}</h3>
                 <p class="item-price">$${item.price.toFixed(2)}</p>
             </div>
             <div class="item-actions">
                 <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})">-</button>
+                    <button class="quantity-btn" onclick="updateCartQuantity('${escapeJsString(item.id)}', ${item.quantity - 1})">-</button>
                     <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
-                           onchange="updateCartQuantity('${item.id}', parseInt(this.value))">
-                    <button class="quantity-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                           onchange="updateCartQuantity('${escapeJsString(item.id)}', parseInt(this.value))">
+                    <button class="quantity-btn" onclick="updateCartQuantity('${escapeJsString(item.id)}', ${item.quantity + 1})">+</button>
                 </div>
-                <button class="btn btn-outline" onclick="removeFromCart('${item.id}')">Remove</button>
+                <button class="btn btn-outline" onclick="removeFromCart('${escapeJsString(item.id)}')">Remove</button>
             </div>
         </div>
     `).join('');
@@ -331,7 +336,7 @@ function updateCartQuantity(id, quantity) {
 }
 
 function removeFromCart(id) {
-    const item = document.querySelector(`[onclick*="'${id}'"]`)?.closest('.cart-item');
+    const item = document.querySelector(`.cart-item[data-item-id="${String(id).replace(/"/g, '\\"')}"]`);
     if (item) {
         item.classList.add('slide-out');
         setTimeout(() => {
@@ -341,7 +346,6 @@ function removeFromCart(id) {
     }
 }
 
-// Wishlist Page Functions
 function renderWishlist() {
     const wishlist = Wishlist.get();
     const container = document.getElementById('wishlistItems');
@@ -354,17 +358,17 @@ function renderWishlist() {
     }
 
     container.innerHTML = wishlist.map(item => `
-        <div class="wishlist-item fade-in">
+        <div class="wishlist-item fade-in" data-item-id="${escapeHtml(item.id)}">
             <div class="item-image">
-                <span style="font-size: 3rem;">🧼</span>
+                ${renderItemImage(item)}
             </div>
             <div class="item-details">
-                <h3 class="item-title">${item.name}</h3>
+                <h3 class="item-title">${escapeHtml(item.name)}</h3>
                 <p class="item-price">$${item.price.toFixed(2)}</p>
             </div>
             <div class="item-actions">
-                <button class="btn btn-primary" onclick="addToCartFromWishlist('${item.id}')">Add to Cart</button>
-                <button class="btn btn-outline" onclick="removeFromWishlist('${item.id}')">Remove</button>
+                <button class="btn btn-primary" onclick="addToCartFromWishlist('${escapeJsString(item.id)}')">Add to Cart</button>
+                <button class="btn btn-outline" onclick="removeFromWishlist('${escapeJsString(item.id)}')">Remove</button>
             </div>
         </div>
     `).join('');
@@ -375,7 +379,7 @@ function addToCartFromWishlist(id) {
     const item = wishlist.find(i => i.id === id);
     if (item) {
         Cart.add(item);
-        const wishlistItem = document.querySelector(`[onclick*="'${id}'"]`)?.closest('.wishlist-item');
+        const wishlistItem = document.querySelector(`.wishlist-item[data-item-id="${String(id).replace(/"/g, '\\"')}"]`);
         if (wishlistItem) {
             wishlistItem.style.background = 'var(--success-color)';
             wishlistItem.style.color = 'white';
@@ -387,7 +391,7 @@ function addToCartFromWishlist(id) {
 }
 
 function removeFromWishlist(id) {
-    const item = document.querySelector(`[onclick*="'${id}'"]`)?.closest('.wishlist-item');
+    const item = document.querySelector(`.wishlist-item[data-item-id="${String(id).replace(/"/g, '\\"')}"]`);
     if (item) {
         item.classList.add('slide-out');
         setTimeout(() => {
@@ -397,7 +401,6 @@ function removeFromWishlist(id) {
     }
 }
 
-// Comments Functions
 function renderComments(page) {
     const comments = Comments.get(page);
     const container = document.getElementById('commentsList');
@@ -411,9 +414,9 @@ function renderComments(page) {
 
     container.innerHTML = comments.map(comment => `
         <div class="comment-item fade-in">
-            <div class="comment-author">${comment.name}</div>
-            <div class="comment-date">${comment.date}</div>
-            <div class="comment-text">${comment.text}</div>
+            <div class="comment-author">${escapeHtml(comment.name)}</div>
+            <div class="comment-date">${escapeHtml(comment.date)}</div>
+            <div class="comment-text">${escapeHtml(comment.text)}</div>
         </div>
     `).join('');
 }
@@ -435,19 +438,14 @@ function submitComment(page) {
     renderComments(page);
 }
 
-// Checkout Form
 function handleCheckout(e) {
     e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-    
-    // Simulate form submission
+
     alert('Thank you for your order! Your cart has been cleared.');
     Cart.clear();
     window.location.href = 'index.php';
 }
 
-// Initialize page-specific functions
 if (document.getElementById('cartItems')) {
     renderCart();
 }

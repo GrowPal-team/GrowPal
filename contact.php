@@ -1,5 +1,26 @@
 <?php
-$pageTitle = "Contact Us";
+$pageTitle = 'Contact Us';
+$contact_details = [
+    ['label' => 'Address', 'value' => 'Palestine'],
+    ['label' => 'Email', 'value' => 'info@growpal.com'],
+    ['label' => 'Phone', 'value' => '+970 9 XXX XXXX'],
+];
+$maps_embed_url = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3380.5!2d35.2606!3d32.2211!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDEzJzE2LjAiTiAzNcKwMTUnMzguMiJF!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s';
+$contact_highlights = [
+    [
+        'title' => 'Practical Guidance',
+        'description' => 'We focus on simple plant care advice and product recommendations that people can actually use day to day.',
+    ],
+    [
+        'title' => 'Thoughtful Product Selection',
+        'description' => 'Our goal is to make it easier to find plants, accessories, and care essentials that fit real homes and spaces.',
+    ],
+    [
+        'title' => 'Local Relevance',
+        'description' => 'GrowPal is built around the needs of users in Palestine, with a more familiar and accessible experience.',
+    ],
+];
+
 include 'includes/header.php';
 ?>
 
@@ -33,22 +54,16 @@ include 'includes/header.php';
             
             <div>
                 <h3 style="margin-bottom: 1.5rem; color: var(--primary-color);">Contact Information</h3>
+                <?php foreach ($contact_details as $detail): ?>
                 <div style="margin-bottom: 2rem;">
-                    <p style="margin-bottom: 0.5rem;"><strong>Address:</strong></p>
-                    <p style="color: var(--text-light);">Palestine</p>
+                    <p style="margin-bottom: 0.5rem;"><strong><?php echo htmlspecialchars($detail['label']); ?>:</strong></p>
+                    <p style="color: var(--text-light);"><?php echo htmlspecialchars($detail['value']); ?></p>
                 </div>
-                <div style="margin-bottom: 2rem;">
-                    <p style="margin-bottom: 0.5rem;"><strong>Email:</strong></p>
-                    <p style="color: var(--text-light);">info@growpal.com</p>
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong></p>
-                    <p style="color: var(--text-light);">+970 9 XXX XXXX</p>
-                </div>
+                <?php endforeach; ?>
                 
                 <h3 style="margin: 2rem 0 1.5rem; color: var(--primary-color);">Our Location</h3>
                 <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3380.5!2d35.2606!3d32.2211!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDEzJzE2LjAiTiAzNcKwMTUnMzguMiJF!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s" 
+                    <iframe src="<?php echo htmlspecialchars($maps_embed_url); ?>"
                             allowfullscreen="" 
                             loading="lazy" 
                             referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -60,24 +75,28 @@ include 'includes/header.php';
 
 <section class="section" style="background: var(--bg-light);">
     <div class="container">
-        <h2 class="section-title">Learn More About Us</h2>
-        <div class="video-container">
-            <div class="video-wrapper">
-                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen></iframe>
+        <h2 class="section-title">Why GrowPal</h2>
+        <div class="info-grid">
+            <?php foreach ($contact_highlights as $highlight): ?>
+            <div class="info-card">
+                <h3><?php echo htmlspecialchars($highlight['title']); ?></h3>
+                <p><?php echo htmlspecialchars($highlight['description']); ?></p>
             </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
 <script>
-document.getElementById('contactForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    alert('Thank you for your message! We will get back to you soon.');
-    e.target.reset();
-});
+const contactForm = document.getElementById('contactForm');
+
+if (contactForm) {
+    contactForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        alert('Thank you for your message! We will get back to you soon.');
+        contactForm.reset();
+    });
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

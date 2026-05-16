@@ -1,5 +1,25 @@
 <?php
-$pageTitle = "Checkout";
+$pageTitle = 'Checkout';
+$shipping_fields = [
+    ['id' => 'firstName', 'label' => 'First Name', 'type' => 'text'],
+    ['id' => 'lastName', 'label' => 'Last Name', 'type' => 'text'],
+    ['id' => 'email', 'label' => 'Email Address', 'type' => 'email'],
+    ['id' => 'phone', 'label' => 'Phone Number', 'type' => 'tel'],
+    ['id' => 'address', 'label' => 'Street Address', 'type' => 'text'],
+];
+$address_detail_fields = [
+    ['id' => 'city', 'label' => 'City', 'type' => 'text'],
+    ['id' => 'zipCode', 'label' => 'Zip Code', 'type' => 'text'],
+];
+$payment_fields = [
+    ['id' => 'cardName', 'label' => 'Name on Card', 'type' => 'text'],
+    ['id' => 'cardNumber', 'label' => 'Card Number', 'type' => 'text', 'placeholder' => '1234 5678 9012 3456'],
+];
+$payment_detail_fields = [
+    ['id' => 'expiry', 'label' => 'Expiry Date', 'type' => 'text', 'placeholder' => 'MM/YY'],
+    ['id' => 'cvv', 'label' => 'CVV', 'type' => 'text', 'placeholder' => '123'],
+];
+
 include 'includes/header.php';
 ?>
 
@@ -11,73 +31,46 @@ include 'includes/header.php';
             <div>
                 <form id="checkoutForm" class="form-container" style="max-width: 100%;">
                     <h3 style="margin-bottom: 1.5rem; color: var(--primary-color);">Shipping Information</h3>
-                    
+
+                    <?php foreach ($shipping_fields as $field): ?>
                     <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" name="firstName" required>
+                        <label for="<?php echo htmlspecialchars($field['id']); ?>"><?php echo htmlspecialchars($field['label']); ?></label>
+                        <input type="<?php echo htmlspecialchars($field['type']); ?>" id="<?php echo htmlspecialchars($field['id']); ?>" name="<?php echo htmlspecialchars($field['id']); ?>" required>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" name="lastName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="address">Street Address</label>
-                        <input type="text" id="address" name="address" required>
-                    </div>
-                    
+                    <?php endforeach; ?>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <?php foreach ($address_detail_fields as $field): ?>
                         <div class="form-group">
-                            <label for="city">City</label>
-                            <input type="text" id="city" name="city" required>
+                            <label for="<?php echo htmlspecialchars($field['id']); ?>"><?php echo htmlspecialchars($field['label']); ?></label>
+                            <input type="<?php echo htmlspecialchars($field['type']); ?>" id="<?php echo htmlspecialchars($field['id']); ?>" name="<?php echo htmlspecialchars($field['id']); ?>" required>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="zipCode">Zip Code</label>
-                            <input type="text" id="zipCode" name="zipCode" required>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="country">Country</label>
                         <input type="text" id="country" name="country" required>
                     </div>
-                    
+
                     <h3 style="margin: 2rem 0 1.5rem; color: var(--primary-color);">Payment Information</h3>
-                    
+
+                    <?php foreach ($payment_fields as $field): ?>
                     <div class="form-group">
-                        <label for="cardName">Name on Card</label>
-                        <input type="text" id="cardName" name="cardName" required>
+                        <label for="<?php echo htmlspecialchars($field['id']); ?>"><?php echo htmlspecialchars($field['label']); ?></label>
+                        <input type="<?php echo htmlspecialchars($field['type']); ?>" id="<?php echo htmlspecialchars($field['id']); ?>" name="<?php echo htmlspecialchars($field['id']); ?>" required<?php echo isset($field['placeholder']) ? ' placeholder="' . htmlspecialchars($field['placeholder']) . '"' : ''; ?>>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="cardNumber">Card Number</label>
-                        <input type="text" id="cardNumber" name="cardNumber" required placeholder="1234 5678 9012 3456">
-                    </div>
-                    
+                    <?php endforeach; ?>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <?php foreach ($payment_detail_fields as $field): ?>
                         <div class="form-group">
-                            <label for="expiry">Expiry Date</label>
-                            <input type="text" id="expiry" name="expiry" required placeholder="MM/YY">
+                            <label for="<?php echo htmlspecialchars($field['id']); ?>"><?php echo htmlspecialchars($field['label']); ?></label>
+                            <input type="<?php echo htmlspecialchars($field['type']); ?>" id="<?php echo htmlspecialchars($field['id']); ?>" name="<?php echo htmlspecialchars($field['id']); ?>" required<?php echo isset($field['placeholder']) ? ' placeholder="' . htmlspecialchars($field['placeholder']) . '"' : ''; ?>>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="cvv">CVV</label>
-                            <input type="text" id="cvv" name="cvv" required placeholder="123">
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Place Order</button>
                 </form>
             </div>
@@ -90,15 +83,17 @@ include 'includes/header.php';
 </section>
 
 <script>
-// Display cart summary in checkout
-const cart = Cart.get();
+const checkoutSummary = document.getElementById('checkoutSummary');
+const checkoutForm = document.getElementById('checkoutForm');
+const cartItems = Cart.get();
 const subtotal = Cart.getTotal();
+const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-if (document.getElementById('checkoutSummary')) {
-    document.getElementById('checkoutSummary').innerHTML = `
+if (checkoutSummary) {
+    checkoutSummary.innerHTML = `
         <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Order Summary</h3>
         <div class="summary-row">
-            <span>Items (${cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
+            <span>Items (${itemCount})</span>
             <span>$${subtotal.toFixed(2)}</span>
         </div>
         <div class="summary-row">
@@ -112,8 +107,9 @@ if (document.getElementById('checkoutSummary')) {
     `;
 }
 
-// Handle checkout form submission
-document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
+if (checkoutForm) {
+    checkoutForm.addEventListener('submit', handleCheckout);
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

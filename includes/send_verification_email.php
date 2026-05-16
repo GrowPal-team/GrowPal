@@ -1,134 +1,172 @@
 <?php
-/**
- * Send verification email to user via SMTP
- * Returns true on success, false on failure
- */
-function sendVerificationEmail($toEmail, $userName, $verificationCode) {
+function growpal_load_mail_config(): void {
     if (!defined('MAIL_FROM_EMAIL')) {
         require_once __DIR__ . '/../config/email.php';
     }
-    
-    $userName = $userName ?? 'there';
-    $verificationCode = $verificationCode ?? '000000';
-    $subject = 'GrowPal - Verify Your Email Address';
+}
 
-    // Use PHPMailer if available and SMTP enabled
-    if (defined('SMTP_ENABLED') && SMTP_ENABLED && file_exists(__DIR__ . '/../vendor/autoload.php')) {
-        require __DIR__ . '/../vendor/autoload.php';
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host       = SMTP_HOST;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USERNAME;
-            $mail->Password   = SMTP_PASSWORD;
-            $mail->SMTPSecure = SMTP_SECURE;
-            $mail->Port       = SMTP_PORT;
-            $mail->CharSet    = 'UTF-8';
-            $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-            $mail->addAddress($toEmail, $userName);
-            $mail->addReplyTo(MAIL_REPLY_TO, 'GrowPal Support');
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
+function growpal_can_use_smtp(): bool {
+    return defined('SMTP_ENABLED')
+        && SMTP_ENABLED
+        && file_exists(__DIR__ . '/../vendor/autoload.php');
+}
 
-            $logoUrl = '';
-            if (defined('LOGO_PATH') && file_exists(LOGO_PATH)) {
-                $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', 'logo.png');
-                $logoUrl = 'cid:growpalogo';
-            }
-            ob_start();
-            include __DIR__ . '/../emails/verification-template.php';
-            $htmlBody = ob_get_clean();
-            $mail->Body = $htmlBody;
-            $mail->AltBody = "Hi $userName,\n\nYour GrowPal verification code is: $verificationCode\n\nThis code expires in 15 minutes.";
-            
-            $mail->send();
-            return true;
-        } catch (\PHPMailer\PHPMailer\Exception $e) {
-            error_log("GrowPal PHPMailer Error: " . $mail->ErrorInfo);
-            return false;
-        }
+function growpal_create_mailer(
+    string $toEmail,
+    string $recipientName,
+    string $subject
+): \PHPMailer\PHPMailer\PHPMailer {
+    require_once __DIR__ . '/../vendor/autoload.php';
+
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host = SMTP_HOST;
+    $mail->SMTPAuth = true;
+    $mail->Username = SMTP_USERNAME;
+    $mail->Password = SMTP_PASSWORD;
+    $mail->SMTPSecure = SMTP_SECURE;
+    $mail->Port = SMTP_PORT;
+    $mail->CharSet = 'UTF-8';
+    $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
+    $mail->addAddress($toEmail, $recipientName);
+    $mail->addReplyTo(MAIL_REPLY_TO, 'GrowPal Support');
+    $mail->isHTML(true);
+    $mail->Subject = $subject;
+
+    return $mail;
+}
+
+function growpal_get_logo_url(
+    bool $embedForMailer = false,
+    ?\PHPMailer\PHPMailer\PHPMailer $mail = null
+): string {
+    if (!defined('LOGO_PATH') || !file_exists(LOGO_PATH)) {
+        return '';
     }
 
-    // Fallback: PHP mail() — بناء الهيدر بدون cid
-    $logoUrl = '';
-    if (defined('LOGO_PATH') && file_exists(LOGO_PATH)) {
-        $logoData = base64_encode(file_get_contents(LOGO_PATH));
-        $logoUrl = 'data:image/png;base64,' . $logoData;
+    if ($embedForMailer && $mail !== null) {
+        $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', 'logo.png');
+        return 'cid:growpalogo';
     }
+
+    return 'data:image/png;base64,' . base64_encode(file_get_contents(LOGO_PATH));
+}
+
+function growpal_render_email_template(string $templatePath, array $variables = []): string {
+    extract($variables, EXTR_SKIP);
     ob_start();
-    include __DIR__ . '/../emails/verification-template.php';
-    $htmlBody = ob_get_clean();
+    include $templatePath;
+    return ob_get_clean();
+}
 
+function growpal_send_fallback_html_mail(string $toEmail, string $subject, string $htmlBody): bool {
     $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=UTF-8\r\n";
     $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_EMAIL . ">\r\n";
     $headers .= "Reply-To: " . MAIL_REPLY_TO . "\r\n";
-    
-    $sent = @mail($toEmail, $subject, $htmlBody, $headers);
+
+    return @mail($toEmail, $subject, $htmlBody, $headers);
+}
+
+function growpal_send_template_via_smtp(
+    string $toEmail,
+    string $recipientName,
+    string $subject,
+    string $templatePath,
+    array $templateVariables,
+    string $altBody,
+    string $errorLogPrefix
+): bool {
+    try {
+        $mail = growpal_create_mailer($toEmail, $recipientName, $subject);
+        $templateVariables['logoUrl'] = growpal_get_logo_url(true, $mail);
+        $htmlBody = growpal_render_email_template($templatePath, $templateVariables);
+
+        $mail->Body = $htmlBody;
+        $mail->AltBody = $altBody;
+        $mail->send();
+
+        return true;
+    } catch (\PHPMailer\PHPMailer\Exception $exception) {
+        error_log($errorLogPrefix . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+function sendVerificationEmail($toEmail, $userName, $verificationCode) {
+    growpal_load_mail_config();
+
+    $userName = $userName ?? 'there';
+    $verificationCode = $verificationCode ?? '000000';
+    $subject = 'GrowPal - Verify Your Email Address';
+
+    if (growpal_can_use_smtp()) {
+        return growpal_send_template_via_smtp(
+            $toEmail,
+            $userName,
+            $subject,
+            __DIR__ . '/../emails/verification-template.php',
+            [
+                'userName' => $userName,
+                'verificationCode' => $verificationCode,
+            ],
+            "Hi $userName,\n\nYour GrowPal verification code is: $verificationCode\n\nThis code expires in 15 minutes.",
+            'GrowPal PHPMailer Error: '
+        );
+    }
+
+    $logoUrl = growpal_get_logo_url();
+    $htmlBody = growpal_render_email_template(
+        __DIR__ . '/../emails/verification-template.php',
+        [
+            'userName' => $userName,
+            'verificationCode' => $verificationCode,
+            'logoUrl' => $logoUrl,
+        ]
+    );
+
+    $sent = growpal_send_fallback_html_mail($toEmail, $subject, $htmlBody);
     if (!$sent) {
         error_log("GrowPal: Failed to send to $toEmail. Code: $verificationCode");
     }
     return $sent;
 }
 
-/**
- * Send password reset code to user
- */
 function sendPasswordResetEmail($toEmail, $userName, $resetCode) {
-    if (!defined('MAIL_FROM_EMAIL')) {
-        require_once __DIR__ . '/../config/email.php';
-    }
+    growpal_load_mail_config();
+
     $userName = $userName ?? 'there';
     $resetCode = $resetCode ?? '000000';
     $subject = 'GrowPal - Reset Your Password';
 
-    if (defined('SMTP_ENABLED') && SMTP_ENABLED && file_exists(__DIR__ . '/../vendor/autoload.php')) {
-        require __DIR__ . '/../vendor/autoload.php';
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host       = SMTP_HOST;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USERNAME;
-            $mail->Password   = SMTP_PASSWORD;
-            $mail->SMTPSecure = SMTP_SECURE;
-            $mail->Port       = SMTP_PORT;
-            $mail->CharSet    = 'UTF-8';
-            $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-            $mail->addAddress($toEmail, $userName);
-            $mail->addReplyTo(MAIL_REPLY_TO, 'GrowPal Support');
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $logoUrl = '';
-            if (defined('LOGO_PATH') && file_exists(LOGO_PATH)) {
-                $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', 'logo.png');
-                $logoUrl = 'cid:growpalogo';
-            }
-            ob_start();
-            include __DIR__ . '/../emails/password-reset-template.php';
-            $htmlBody = ob_get_clean();
-            $mail->Body = $htmlBody;
-            $mail->AltBody = "Hi $userName,\n\nYour GrowPal password reset code is: $resetCode\n\nThis code expires in 15 minutes.";
-            $mail->send();
-            return true;
-        } catch (\PHPMailer\PHPMailer\Exception $e) {
-            error_log("GrowPal PHPMailer Reset Error: " . $mail->ErrorInfo);
-            return false;
-        }
+    if (growpal_can_use_smtp()) {
+        return growpal_send_template_via_smtp(
+            $toEmail,
+            $userName,
+            $subject,
+            __DIR__ . '/../emails/password-reset-template.php',
+            [
+                'userName' => $userName,
+                'resetCode' => $resetCode,
+            ],
+            "Hi $userName,\n\nYour GrowPal password reset code is: $resetCode\n\nThis code expires in 15 minutes.",
+            'GrowPal PHPMailer Reset Error: '
+        );
     }
-    $logoUrl = defined('LOGO_PATH') && file_exists(LOGO_PATH) ? 'data:image/png;base64,' . base64_encode(file_get_contents(LOGO_PATH)) : '';
-    ob_start();
-    $resetCode = $resetCode;
-    include __DIR__ . '/../emails/password-reset-template.php';
-    $htmlBody = ob_get_clean();
-    $headers = "MIME-Version: 1.0\r\nContent-type: text/html; charset=UTF-8\r\nFrom: " . MAIL_FROM_NAME . " <" . MAIL_FROM_EMAIL . ">\r\nReply-To: " . MAIL_REPLY_TO . "\r\n";
-    return @mail($toEmail, $subject, $htmlBody, $headers);
+
+    $logoUrl = growpal_get_logo_url();
+    $htmlBody = growpal_render_email_template(
+        __DIR__ . '/../emails/password-reset-template.php',
+        [
+            'userName' => $userName,
+            'resetCode' => $resetCode,
+            'logoUrl' => $logoUrl,
+        ]
+    );
+
+    return growpal_send_fallback_html_mail($toEmail, $subject, $htmlBody);
 }
 
-/**
- * اسم ظاهر بسيط من جزء الإيميل قبل @
- */
 function growpal_promo_display_name(string $email): string {
     $local = strstr($email, '@', true);
     if ($local === false || $local === '') {
@@ -138,13 +176,8 @@ function growpal_promo_display_name(string $email): string {
     return ucwords(strtolower($local));
 }
 
-/**
- * بريد ترحيب بعد إدخال الإيميل في عرض Get Offer (ببلك يوزر)
- */
 function sendPromoLeadWelcomeEmail(string $toEmail, string $discountLabel = '10%'): bool {
-    if (!defined('MAIL_FROM_EMAIL')) {
-        require_once __DIR__ . '/../config/email.php';
-    }
+    growpal_load_mail_config();
 
     $displayName = growpal_promo_display_name($toEmail);
     $recipientEmail = $toEmail;
@@ -152,54 +185,39 @@ function sendPromoLeadWelcomeEmail(string $toEmail, string $discountLabel = '10%
     $loginUrl = SITE_PUBLIC_URL . '/login?promo=10&email=' . rawurlencode($toEmail);
     $subject = 'GrowPal — Your ' . $discountLabel . ' welcome offer is waiting';
 
-    if (defined('SMTP_ENABLED') && SMTP_ENABLED && file_exists(__DIR__ . '/../vendor/autoload.php')) {
-        require __DIR__ . '/../vendor/autoload.php';
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host       = SMTP_HOST;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USERNAME;
-            $mail->Password   = SMTP_PASSWORD;
-            $mail->SMTPSecure = SMTP_SECURE;
-            $mail->Port       = SMTP_PORT;
-            $mail->CharSet    = 'UTF-8';
-            $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-            $mail->addAddress($toEmail, $displayName);
-            $mail->addReplyTo(MAIL_REPLY_TO, 'GrowPal Support');
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-
-            $logoUrl = '';
-            if (defined('LOGO_PATH') && file_exists(LOGO_PATH)) {
-                $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', 'logo.png');
-                $logoUrl = 'cid:growpalogo';
-            }
-            ob_start();
-            include __DIR__ . '/../emails/promo-lead-welcome-template.php';
-            $htmlBody = ob_get_clean();
-            $mail->Body = $htmlBody;
-            $mail->AltBody = "Hi {$displayName},\n\nThanks for joining GrowPal. Your {$discountLabel} discount activates when you create an account with this email: {$toEmail}\n\nRegister: {$registerUrl}\nSign in: {$loginUrl}\n";
-            $mail->send();
-            return true;
-        } catch (\PHPMailer\PHPMailer\Exception $e) {
-            error_log('GrowPal PHPMailer Promo Lead Error: ' . $mail->ErrorInfo);
-            return false;
-        }
+    if (growpal_can_use_smtp()) {
+        return growpal_send_template_via_smtp(
+            $toEmail,
+            $displayName,
+            $subject,
+            __DIR__ . '/../emails/promo-lead-welcome-template.php',
+            [
+                'displayName' => $displayName,
+                'recipientEmail' => $recipientEmail,
+                'discountLabel' => $discountLabel,
+                'registerUrl' => $registerUrl,
+                'loginUrl' => $loginUrl,
+                'toEmail' => $toEmail,
+            ],
+            "Hi {$displayName},\n\nThanks for joining GrowPal. Your {$discountLabel} discount activates when you create an account with this email: {$toEmail}\n\nRegister: {$registerUrl}\nSign in: {$loginUrl}\n",
+            'GrowPal PHPMailer Promo Lead Error: '
+        );
     }
 
-    $logoUrl = '';
-    if (defined('LOGO_PATH') && file_exists(LOGO_PATH)) {
-        $logoUrl = 'data:image/png;base64,' . base64_encode(file_get_contents(LOGO_PATH));
-    }
-    ob_start();
-    include __DIR__ . '/../emails/promo-lead-welcome-template.php';
-    $htmlBody = ob_get_clean();
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_EMAIL . ">\r\n";
-    $headers .= "Reply-To: " . MAIL_REPLY_TO . "\r\n";
-    $sent = @mail($toEmail, $subject, $htmlBody, $headers);
+    $logoUrl = growpal_get_logo_url();
+    $htmlBody = growpal_render_email_template(
+        __DIR__ . '/../emails/promo-lead-welcome-template.php',
+        [
+            'displayName' => $displayName,
+            'recipientEmail' => $recipientEmail,
+            'discountLabel' => $discountLabel,
+            'registerUrl' => $registerUrl,
+            'loginUrl' => $loginUrl,
+            'logoUrl' => $logoUrl,
+            'toEmail' => $toEmail,
+        ]
+    );
+    $sent = growpal_send_fallback_html_mail($toEmail, $subject, $htmlBody);
     if (!$sent) {
         error_log("GrowPal: Failed to send promo welcome to {$toEmail}");
     }

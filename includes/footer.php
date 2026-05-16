@@ -1,3 +1,23 @@
+<?php
+$current_year = date('Y');
+$footer_quick_links = [
+    ['label' => 'Home', 'href' => 'index.php'],
+    ['label' => 'Shop', 'href' => 'shop.php'],
+    ['label' => 'About Us', 'href' => 'about.php'],
+    ['label' => 'Contact', 'href' => 'contact.php'],
+];
+$footer_support_links = [
+    ['label' => 'Shipping Info', 'href' => '#'],
+    ['label' => 'Returns', 'href' => '#'],
+    ['label' => 'FAQ', 'href' => '#'],
+    ['label' => 'Privacy Policy', 'href' => '#'],
+];
+$footer_social_links = [
+    ['label' => 'Facebook', 'href' => '#'],
+    ['label' => 'Instagram', 'href' => '#'],
+    ['label' => 'Twitter', 'href' => '#'],
+];
+?>
     </main>
     <footer class="main-footer">
         <div class="container">
@@ -9,32 +29,30 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="index.php">Home</a></li>
-                        <li><a href="shop.php">Shop</a></li>
-                        <li><a href="about.php">About Us</a></li>
-                        <li><a href="contact.php">Contact</a></li>
+                        <?php foreach ($footer_quick_links as $link): ?>
+                        <li><a href="<?php echo htmlspecialchars($link['href']); ?>"><?php echo htmlspecialchars($link['label']); ?></a></li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Customer Service</h4>
                     <ul>
-                        <li><a href="#">Shipping Info</a></li>
-                        <li><a href="#">Returns</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                        <?php foreach ($footer_support_links as $link): ?>
+                        <li><a href="<?php echo htmlspecialchars($link['href']); ?>"><?php echo htmlspecialchars($link['label']); ?></a></li>
+                        <?php endforeach; ?>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Connect</h4>
                     <div class="social-links">
-                        <a href="#" aria-label="Facebook">Facebook</a>
-                        <a href="#" aria-label="Instagram">Instagram</a>
-                        <a href="#" aria-label="Twitter">Twitter</a>
+                        <?php foreach ($footer_social_links as $link): ?>
+                        <a href="<?php echo htmlspecialchars($link['href']); ?>" aria-label="<?php echo htmlspecialchars($link['label']); ?>"><?php echo htmlspecialchars($link['label']); ?></a>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; <?php echo date('Y'); ?> GrowPal. All rights reserved.</p>
+                <p>&copy; <?php echo htmlspecialchars($current_year); ?> GrowPal. All rights reserved.</p>
             </div>
         </div>
     </footer>

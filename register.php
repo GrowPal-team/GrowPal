@@ -1,5 +1,7 @@
 <?php
-$pageTitle = "Register";
+$pageTitle = 'Register';
+$publicSiteUrl = rtrim(getenv('GROWPAL_SITE_URL') ?: 'http://localhost:3000', '/');
+
 include 'includes/header.php';
 ?>
 
@@ -38,197 +40,162 @@ include 'includes/header.php';
     </div>
 </section>
 
-<style>
-.success-notification {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.3s ease;
-}
-
-.success-notification-content {
-    background: white;
-    padding: 3rem;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 400px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.4s ease;
-}
-
-.success-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: #2F6F4E;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: scaleIn 0.5s ease;
-}
-
-.success-icon::after {
-    content: '✓';
-    color: white;
-    font-size: 50px;
-    font-weight: bold;
-}
-
-.success-title {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #2F6F4E;
-    margin-bottom: 1rem;
-}
-
-.success-message {
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 0.5rem;
-}
-
-.plant-message {
-    color: #2F6F4E;
-    font-style: italic;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes scaleIn {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
-}
-</style>
-
 <script>
-(function () {
-    var p = new URLSearchParams(window.location.search);
-    var em = p.get('email');
-    if (em) {
-        var el = document.getElementById('email');
-        if (el) el.value = decodeURIComponent(em);
-    }
-})();
+const publicSiteUrl = <?php echo json_encode($publicSiteUrl); ?>;
 
-function showSuccessNotification() {
+function prefillEmailFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    const emailInput = document.getElementById('email');
+
+    if (email && emailInput) {
+        emailInput.value = decodeURIComponent(email);
+    }
+}
+
+function resolveAuthApiUrl() {
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes('/GrowPal/')) {
+        return '/GrowPal/api/auth.php';
+    }
+
+    if (currentPath !== '/register.php' && currentPath.includes('/')) {
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        return `${basePath}/api/auth.php`;
+    }
+
+    return 'api/auth.php';
+}
+
+function showAuthFeedback({ title, message, note, redirectUrl, delay = 2200 }) {
     const notification = document.createElement('div');
-    notification.className = 'success-notification';
+    notification.className = 'auth-feedback-overlay';
     notification.innerHTML = `
-        <div class="success-notification-content">
-            <div class="success-icon"></div>
-            <h2 class="success-title">Account Created Successfully!</h2>
-            <p class="success-message">Welcome to GrowPal! Your account has been created.</p>
-            <p class="plant-message">🌱 Start your green journey and transform any space into a sustainable environment.</p>
+        <div class="auth-feedback-card">
+            <div class="auth-feedback-icon"></div>
+            <h2 class="auth-feedback-title">${title}</h2>
+            <p class="auth-feedback-message">${message}</p>
+            ${note ? `<p class="auth-feedback-note">${note}</p>` : ''}
         </div>
     `;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.opacity = '0';
         setTimeout(() => {
-            window.location.href = 'login.php';
+            window.location.href = redirectUrl;
         }, 300);
-    }, 3000);
+    }, delay);
 }
 
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('fullName').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
+function passwordMeetsPolicy(password) {
+    return typeof password === 'string'
+        && password.length >= 8
+        && /[A-Z]/.test(password)
+        && /[a-z]/.test(password)
+        && /[0-9]/.test(password)
+        && /[!@#$%^&*(),.?":{}|<>]/.test(password);
+}
+
+function buildVerifyEmailUrl(email, token, devCode) {
+    const params = new URLSearchParams({ email });
+
+    if (token) {
+        params.set('token', token);
     }
-    
-    if (password.length < 6) {
-        alert('Password must be at least 6 characters long!');
-        return;
+
+    if (devCode) {
+        params.set('code', devCode);
     }
-    
-    // إظهار loading state
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating Account...';
-    
-    try {
-        console.log('Sending registration request...');
-        
-        // تحديد المسار الصحيح للـ API
-        let apiUrl = 'api/auth.php';
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/GrowPal/')) {
-            apiUrl = '/GrowPal/api/auth.php';
-        } else if (currentPath !== '/register.php' && currentPath.includes('/')) {
-            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            apiUrl = basePath + '/api/auth.php';
+
+    return `${publicSiteUrl}/verify-email?${params.toString()}`;
+}
+
+prefillEmailFromQuery();
+
+const registerForm = document.getElementById('registerForm');
+const fullNameInput = document.getElementById('fullName');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirmPassword');
+
+if (registerForm && fullNameInput && emailInput && passwordInput && confirmPasswordInput) {
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const submitButton = registerForm.querySelector('button[type="submit"]');
+        const originalLabel = submitButton ? submitButton.textContent : '';
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
         }
-        
-        console.log('Current path:', currentPath);
-        console.log('API URL:', apiUrl);
-        console.log('Request data:', { action: 'register', name, email, password: '***' });
-        
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'register',
-                name: name,
-                email: email,
-                password: password
-            })
-        });
-        
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Response error:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+
+        if (!passwordMeetsPolicy(password)) {
+            alert('Password must be at least 8 characters and include uppercase, lowercase, a number, and a symbol.');
+            return;
         }
-        
-        const result = await response.json();
-        console.log('Response data:', result);
-        
-        if (result.success) {
-            console.log('Registration successful!');
-            showSuccessNotification();
-        } else {
-            alert('Error: ' + result.message);
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating Account...';
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred. Please check console for details and try again.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-    }
-});
+
+        try {
+            const response = await fetch(resolveAuthApiUrl(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'register',
+                    name: fullNameInput.value,
+                    email: emailInput.value,
+                    password,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Unable to create your account right now.');
+            }
+
+            if (result.needs_verification) {
+                showAuthFeedback({
+                    title: 'Check your email',
+                    message: result.message || 'We sent you a verification code to finish creating your account.',
+                    note: 'You will be redirected to the verification page.',
+                    redirectUrl: buildVerifyEmailUrl(emailInput.value, result.token, result.dev_code),
+                    delay: 2500,
+                });
+                return;
+            }
+
+            showAuthFeedback({
+                title: 'Account created',
+                message: 'Welcome to GrowPal! Your account is ready.',
+                note: 'Redirecting you to sign in.',
+                redirectUrl: 'login.php',
+                delay: 2200,
+            });
+        } catch (error) {
+            alert(error.message || 'An error occurred. Please try again.');
+
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = originalLabel;
+            }
+        }
+    });
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

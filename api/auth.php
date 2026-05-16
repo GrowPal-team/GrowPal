@@ -8,7 +8,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -28,10 +27,7 @@ function passwordMeetsPolicy($password) {
 if ($method === 'POST') {
     $rawInput = file_get_contents('php://input');
     $data = json_decode($rawInput, true);
-    
-    // Log for debugging
-    error_log("API Request - Method: $method, Data: " . print_r($data, true));
-    
+
     if (json_last_error() !== JSON_ERROR_NONE) {
         echo json_encode(['success' => false, 'message' => 'Invalid JSON: ' . json_last_error_msg()]);
         exit;
@@ -40,7 +36,6 @@ if ($method === 'POST') {
     $action = $data['action'] ?? '';
     
     if ($action === 'register') {
-        // Register new user
         $name = trim($data['name'] ?? '');
         $email = strtolower(trim($data['email'] ?? ''));
         $password = $data['password'] ?? '';
@@ -49,8 +44,7 @@ if ($method === 'POST') {
             echo json_encode(['success' => false, 'message' => 'All fields are required']);
             exit;
         }
-        
-        // Validate email format
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             echo json_encode(['success' => false, 'message' => 'Invalid email format']);
             exit;
@@ -73,20 +67,14 @@ if ($method === 'POST') {
             }
             
             $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            // نخزن الكود مباشرة لضمان التطابق (حل عملي سريع)
             $codeHash = $verificationCode;
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            // نخلي الصلاحية طويلة حتى لو كان في فرق توقيت بين PHP و MySQL
             $expires = date('Y-m-d H:i:s', strtotime('+1 day'));
 
-            // نخزن Hash للكود فقط
             $stmt = $conn->prepare("REPLACE INTO pending_registrations (email, full_name, password_hash, code_hash, expires_at) VALUES (?, ?, ?, ?, ?)");
             if ($stmt->execute([$email, $name, $hashedPassword, $codeHash, $expires])) {
-                error_log("GrowPal register: stored pending_registrations for email={$email}, expires_at={$expires}");
-                // التوكن مش ضروري للتحقق الآن، بس نخليه لو احتجناه لاحقاً
                 $token = createCodeToken($email, $verificationCode, 900);
                 $emailSent = sendVerificationEmail($email, $name, $verificationCode);
-                error_log("GrowPal register: email send status for email={$email}: " . ($emailSent ? 'sent' : 'failed'));
                 $response = [
                     'success' => true,
                     'message' => 'Check your email for the verification code. Enter it to complete registration.',
@@ -113,13 +101,11 @@ if ($method === 'POST') {
     } elseif ($action === 'verify-code') {
         $email = strtolower(trim($data['email'] ?? ''));
         $code = trim($data['code'] ?? '');
-        // التوكن لم يعد شرطاً، لكن نقبله لو موجود
         if (empty($email) || strlen($code) !== 6 || !ctype_digit($code)) {
             echo json_encode(['success' => false, 'message' => 'Please enter the 6-digit code from your email.']);
             exit;
         }
         try {
-            // لا نعتمد على توقيت السيرفر بشكل صارم هنا (مشاكل timezone)
             $stmt = $conn->prepare("SELECT id, full_name, email, password_hash, code_hash FROM pending_registrations WHERE email = ? ORDER BY id DESC LIMIT 1");
             $stmt->execute([$email]);
             $pending = $stmt->fetch();
@@ -144,7 +130,6 @@ if ($method === 'POST') {
             $parts = preg_split('/\s+/', $full, 2, PREG_SPLIT_NO_EMPTY);
             $fn = $parts[0] ?? '';
             $ln = isset($parts[1]) ? trim($parts[1]) : '';
-            // Prefer extended columns when migration has been applied
             try {
                 $checkCols = $conn->query("SHOW COLUMNS FROM users LIKE 'first_name'");
                 $hasSplit = $checkCols && $checkCols->fetch();
@@ -194,7 +179,6 @@ if ($method === 'POST') {
                 exit;
             }
             $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            // نخزن الكود مباشرة لضمان التطابق (حل عملي سريع)
             $codeHash = $verificationCode;
             $expires = date('Y-m-d H:i:s', strtotime('+1 day'));
             $stmt = $conn->prepare("UPDATE pending_registrations SET code_hash = ?, expires_at = ? WHERE email = ?");
@@ -212,7 +196,6 @@ if ($method === 'POST') {
         }
         
     } elseif ($action === 'login') {
-        // Login user
         $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
         
@@ -220,8 +203,7 @@ if ($method === 'POST') {
             echo json_encode(['success' => false, 'message' => 'Email and password are required']);
             exit;
         }
-        
-        // Get user from database - including email_verified (optional profile columns)
+
         try {
             $checkCols = $conn->query("SHOW COLUMNS FROM users LIKE 'first_name'");
             $hasSplit = $checkCols && $checkCols->fetch();
@@ -266,12 +248,10 @@ if ($method === 'POST') {
             echo json_encode(['success' => false, 'message' => 'This account has been blocked by an admin.']);
             exit;
         }
-        
-        // Verify password
+
         $passwordValid = password_verify($password, $user['password_hash']);
         
         if ($passwordValid) {
-            // Check if email is verified
             $emailVerified = isset($user['email_verified']) ? (int) $user['email_verified'] : 1;
             if ($emailVerified === 0) {
                 echo json_encode([
@@ -283,7 +263,6 @@ if ($method === 'POST') {
                 ]);
                 exit;
             }
-            // Start session
             session_start();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['full_name'];
@@ -330,8 +309,6 @@ if ($method === 'POST') {
                 ]
             ]);
         } else {
-            // Log failed login attempt for debugging (only in development)
-            error_log("Login failed for email: $email - Password verification failed");
             echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
         }
         
@@ -351,15 +328,12 @@ if ($method === 'POST') {
             }
             $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $codeHash = password_hash($code, PASSWORD_DEFAULT);
-            // نخزن Hash للكود فقط بدل الاعتماد على التوكن
             $stmt = $conn->prepare("REPLACE INTO password_resets (email, code_hash, expires_at) VALUES (?, ?, ?)");
             $expires = date('Y-m-d H:i:s', strtotime('+1 day'));
             $stmt->execute([$email, $codeHash, $expires]);
-            error_log("GrowPal forgot-password: stored password_resets for email={$email}, expires_at={$expires}");
 
-            $token = createCodeToken($email, $code, 900); // اختياري (الواجهة تحتاجه بالرابط)
+            $token = createCodeToken($email, $code, 900);
             $emailSent = sendPasswordResetEmail($email, $user['full_name'], $code);
-            error_log("GrowPal forgot-password: email send status for email={$email}: " . ($emailSent ? 'sent' : 'failed'));
             $response = ['success' => true, 'message' => 'Check your email for the reset code.', 'email' => $email, 'token' => $token];
             if (!$emailSent && strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false) {
                 $response['dev_code'] = $code;
@@ -390,8 +364,6 @@ if ($method === 'POST') {
             exit;
         }
         try {
-            // التوكن لم يعد شرطاً—نرجع نتحقق من code_hash في قاعدة البيانات
-            // نفس الفكرة: نأخذ آخر كود محفوظ بدون الاعتماد على timezone
             $stmt = $conn->prepare("SELECT code_hash, expires_at FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1");
             $stmt->execute([$email]);
             $reset = $stmt->fetch();
@@ -424,7 +396,6 @@ if ($method === 'POST') {
             echo json_encode(['success' => false, 'message' => 'Something went wrong. Please try again.']);
         }
     } elseif ($action === 'check-email') {
-        // Check if email already exists
         $email = trim($data['email'] ?? '');
         
         if (empty($email)) {
@@ -440,12 +411,10 @@ if ($method === 'POST') {
             echo json_encode(['exists' => $exists]);
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            echo json_encode(['exists' => false]); // Default to false on error
+            echo json_encode(['exists' => false]);
         }
     }
 } else {
-    // Log the actual request method for debugging
-    error_log("API called with method: " . ($method ?? 'UNKNOWN'));
     echo json_encode([
         'success' => false, 
         'message' => 'Invalid request method',

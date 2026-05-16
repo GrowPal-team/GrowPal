@@ -1,3 +1,8 @@
 node_modules
 .next
 .env
+.idea/
+vendor/
+composer.phar
+tsconfig.tsbuildinfo
+CHECKLIST.txt

@@ -1,5 +1,7 @@
 <?php
-$pageTitle = "Login";
+$pageTitle = 'Login';
+$publicSiteUrl = rtrim(getenv('GROWPAL_SITE_URL') ?: 'http://localhost:3000', '/');
+
 include 'includes/header.php';
 ?>
 
@@ -30,152 +32,124 @@ include 'includes/header.php';
     </div>
 </section>
 
-<style>
-.success-notification {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: fadeIn 0.3s ease;
-}
-
-.success-notification-content {
-    background: white;
-    padding: 3rem;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 400px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.4s ease;
-}
-
-.success-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    background: #2F6F4E;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: scaleIn 0.5s ease;
-}
-
-.success-icon::after {
-    content: '✓';
-    color: white;
-    font-size: 50px;
-    font-weight: bold;
-}
-
-.success-title {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #2F6F4E;
-    margin-bottom: 1rem;
-}
-
-.success-message {
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 0.5rem;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes scaleIn {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
-}
-</style>
-
 <script>
-function showLoginSuccess(userName) {
+const publicSiteUrl = <?php echo json_encode($publicSiteUrl); ?>;
+
+function resolveAuthApiUrl() {
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes('/GrowPal/')) {
+        return '/GrowPal/api/auth.php';
+    }
+
+    if (currentPath !== '/login.php' && currentPath.includes('/')) {
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        return `${basePath}/api/auth.php`;
+    }
+
+    return 'api/auth.php';
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+    }[character]));
+}
+
+function showAuthFeedback({ title, message, redirectUrl, delay = 2000 }) {
     const notification = document.createElement('div');
-    notification.className = 'success-notification';
+    notification.className = 'auth-feedback-overlay';
     notification.innerHTML = `
-        <div class="success-notification-content">
-            <div class="success-icon"></div>
-            <h2 class="success-title">Login Successful!</h2>
-            <p class="success-message">Welcome back, ${userName}! You have successfully logged in.</p>
+        <div class="auth-feedback-card">
+            <div class="auth-feedback-icon"></div>
+            <h2 class="auth-feedback-title">${title}</h2>
+            <p class="auth-feedback-message">${message}</p>
         </div>
     `;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.opacity = '0';
         setTimeout(() => {
-            window.location.href = 'index.php';
+            window.location.href = redirectUrl;
         }, 300);
-    }, 2000);
+    }, delay);
 }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-        console.log('Sending login request...');
-        
-        // تحديد المسار الصحيح للـ API
-        let apiUrl = 'api/auth.php';
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/GrowPal/')) {
-            apiUrl = '/GrowPal/api/auth.php';
-        } else if (currentPath !== '/login.php' && currentPath.includes('/')) {
-            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            apiUrl = basePath + '/api/auth.php';
+function buildVerifyEmailUrl(email) {
+    const params = new URLSearchParams({ email });
+    return `${publicSiteUrl}/verify-email?${params.toString()}`;
+}
+
+const loginForm = document.getElementById('loginForm');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+
+if (loginForm && emailInput && passwordInput) {
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        const originalLabel = submitButton ? submitButton.textContent : '';
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Signing In...';
         }
-        
-        console.log('Current path:', currentPath);
-        console.log('API URL:', apiUrl);
-        
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'login',
-                email: email,
-                password: password
-            })
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Response error:', errorText);
-            throw new Error(`HTTP error! status: ${response.status}`);
+
+        try {
+            const response = await fetch(resolveAuthApiUrl(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'login',
+                    email: emailInput.value,
+                    password: passwordInput.value,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.needs_verification) {
+                showAuthFeedback({
+                    title: 'Email verification required',
+                    message: 'Please verify your email before signing in.',
+                    redirectUrl: buildVerifyEmailUrl(result.email || emailInput.value),
+                    delay: 2200,
+                });
+                return;
+            }
+
+            if (!result.success) {
+                throw new Error(result.message || 'Unable to sign in right now.');
+            }
+
+            showAuthFeedback({
+                title: 'Login successful',
+                message: `Welcome back, ${escapeHtml(result.user.name)}!`,
+                redirectUrl: 'index.php',
+                delay: 2000,
+            });
+        } catch (error) {
+            alert(error.message || 'An error occurred. Please try again.');
+
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = originalLabel;
+            }
         }
-        
-        const result = await response.json();
-        console.log('Response data:', result);
-        
-        if (result.success) {
-            showLoginSuccess(result.user.name);
-        } else {
-            alert('Error: ' + result.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
-    }
-});
+    });
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

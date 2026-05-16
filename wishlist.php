@@ -1,5 +1,6 @@
 <?php
-$pageTitle = "Wishlist";
+$pageTitle = 'Wishlist';
+
 include 'includes/header.php';
 ?>
 
@@ -16,8 +17,11 @@ include 'includes/header.php';
 </section>
 
 <script>
-// Render wishlist on page load
-renderWishlist();
+const wishlistItemsContainer = document.getElementById('wishlistItems');
+
+if (wishlistItemsContainer) {
+    renderWishlist();
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>

@@ -748,6 +748,113 @@ body {
     color: var(--primary-color);
 }
 
+.auth-feedback-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 10000;
+    animation: authOverlayFadeIn 0.3s ease;
+}
+
+.auth-feedback-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    padding: 3rem 2.5rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: authCardSlideUp 0.4s ease;
+}
+
+.auth-feedback-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: #2f6f4e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: authIconScaleIn 0.5s ease;
+}
+
+.auth-feedback-icon::after {
+    content: "\2713";
+    color: #fff;
+    font-size: 50px;
+    font-weight: 700;
+}
+
+.auth-feedback-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2f6f4e;
+    margin-bottom: 1rem;
+}
+
+.auth-feedback-message {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.auth-feedback-note {
+    color: #2f6f4e;
+    font-style: italic;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+@keyframes authOverlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes authCardSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes authIconScaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.info-card {
+    background: var(--bg-white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.info-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+}
+
+.info-card p {
+    color: var(--text-light);
+    line-height: 1.7;
+}
+
 /* Cart & Checkout Layout */
 .cart-layout,
 .checkout-layout {
@@ -840,5 +947,9 @@ body {
 
     .contact-layout {
         grid-template-columns: 1fr;
+    }
+
+    .auth-feedback-card {
+        padding: 2.25rem 1.5rem;
     }
 }

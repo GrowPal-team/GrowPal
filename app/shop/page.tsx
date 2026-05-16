@@ -49,24 +49,20 @@ const CATEGORY_COPY: Record<string, string> = {
   "Plant Care Tools": "Smart essentials for pruning, watering, and day-to-day plant care.",
 }
 
-const BUDGET_OPTIONS = [
-  { value: "all", label: "All Budgets", hint: "Show every price range" },
-  { value: "$", label: "Budget", hint: "Simple starter picks" },
-  { value: "$$", label: "Mid-Range", hint: "Balanced everyday choices" },
-  { value: "$$$", label: "Premium", hint: "Larger or more curated picks" },
-]
+const PRICE_FLOOR = 5
+const PRICE_SOFT_CAP = 100
 
 export default function ShopPage() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
-  const [filtered, setFiltered] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [spaceType, setSpaceType] = useState("all")
-  const [budget, setBudget] = useState("all")
   const [sunExposure, setSunExposure] = useState("all")
   const [waterLevel, setWaterLevel] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const [climateZoneLabel, setClimateZoneLabel] = useState<string | null>(null)
+  const [priceLimit, setPriceLimit] = useState<number | null>(null)
+  const [hasCustomPriceLimit, setHasCustomPriceLimit] = useState(false)
 
   useEffect(() => {
     const p = loadClimatePrefs()
@@ -92,7 +88,6 @@ export default function ShopPage() {
         setLoading(true)
         const params = new URLSearchParams()
         if (spaceType !== "all") params.append("spaceType", spaceType)
-        if (budget !== "all") params.append("budget", budget)
         if (sunExposure !== "all") params.append("sunExposure", sunExposure)
         if (waterLevel !== "all") params.append("waterLevel", waterLevel)
 
@@ -101,7 +96,6 @@ export default function ShopPage() {
         
         const data = await response.json()
         setProducts(data)
-        setFiltered(data)
       } catch (error) {
         console.error("Error fetching products:", error)
       } finally {
@@ -110,7 +104,35 @@ export default function ShopPage() {
     }
 
     fetchProducts()
-  }, [spaceType, budget, sunExposure, waterLevel])
+  }, [spaceType, sunExposure, waterLevel])
+
+  const maxAvailablePrice = useMemo(() => {
+    if (products.length === 0) return 0
+    return Math.max(...products.map((product) => product.price))
+  }, [products])
+
+  const sliderCeiling = useMemo(() => {
+    if (maxAvailablePrice === 0) return PRICE_SOFT_CAP
+    return Math.min(maxAvailablePrice, PRICE_SOFT_CAP)
+  }, [maxAvailablePrice])
+
+  useEffect(() => {
+    if (maxAvailablePrice === 0) {
+      setPriceLimit(0)
+      return
+    }
+
+    setPriceLimit((current) => {
+      if (current === null || !hasCustomPriceLimit) return sliderCeiling
+      return Math.min(current, sliderCeiling)
+    })
+  }, [maxAvailablePrice, hasCustomPriceLimit, sliderCeiling])
+
+  const filtered = useMemo(() => {
+    if (priceLimit === null) return products
+    if (maxAvailablePrice > sliderCeiling && priceLimit >= sliderCeiling) return products
+    return products.filter((product) => product.price <= priceLimit)
+  }, [products, priceLimit, maxAvailablePrice, sliderCeiling])
 
   const groupedProducts = useMemo(() => {
     const groups = filtered.reduce<Record<string, Product[]>>((acc, product) => {
@@ -137,8 +159,6 @@ export default function ShopPage() {
 
     return [...ordered, ...remaining]
   }, [filtered])
-
-  const selectedBudget = BUDGET_OPTIONS.find((option) => option.value === budget) ?? BUDGET_OPTIONS[0]
 
   const renderProductCard = (product: Product) => {
     const href = `/product/${encodeURIComponent(product.slug || String(product.id))}`
@@ -244,6 +264,13 @@ export default function ShopPage() {
     )
   }
 
+  const priceLimitLabel =
+    priceLimit === null || maxAvailablePrice === 0
+      ? "All prices"
+      : maxAvailablePrice > sliderCeiling && priceLimit >= sliderCeiling
+        ? `₪${sliderCeiling}+`
+        : `Up to ₪${priceLimit}`
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -294,35 +321,6 @@ export default function ShopPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={budget} onValueChange={setBudget}>
-                <SelectTrigger className="w-[190px] rounded-2xl border-primary/20 bg-card px-4 py-3 shadow-sm transition-colors hover:border-primary/40 focus:ring-primary/20">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                      {selectedBudget.value === "all" ? "Any" : selectedBudget.value}
-                    </span>
-                    <div className="min-w-0 text-left">
-                      <p className="truncate text-sm font-semibold text-foreground">{selectedBudget.label}</p>
-                      <p className="truncate text-[11px] text-muted-foreground">{selectedBudget.hint}</p>
-                    </div>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl border-primary/15 p-2 shadow-xl">
-                  {BUDGET_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="rounded-xl px-3 py-3">
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-                          {option.value === "all" ? "Any" : option.value}
-                        </span>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-foreground">{option.label}</span>
-                          <span className="text-[11px] text-muted-foreground">{option.hint}</span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
               <Select value={sunExposure} onValueChange={setSunExposure}>
                 <SelectTrigger className="w-[160px] rounded-xl">
                   <SelectValue placeholder="Sun Exposure" />
@@ -346,6 +344,45 @@ export default function ShopPage() {
                   <SelectItem value="High">High Water</SelectItem>
                 </SelectContent>
               </Select>
+
+              <div className="w-full rounded-xl border border-primary/20 bg-card px-3 py-2.5 shadow-sm md:w-[170px]">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Max Price
+                    </p>
+                    <p className="truncate text-sm font-semibold text-foreground">{priceLimitLabel}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-[10px] font-medium text-primary transition-colors hover:text-primary/80 disabled:text-muted-foreground"
+                    onClick={() => {
+                      setHasCustomPriceLimit(false)
+                      setPriceLimit(sliderCeiling)
+                    }}
+                    disabled={maxAvailablePrice === 0 || priceLimit === sliderCeiling}
+                  >
+                    Reset
+                  </button>
+                </div>
+                <input
+                  type="range"
+                  min={PRICE_FLOOR}
+                  max={Math.max(sliderCeiling, 1)}
+                  step={1}
+                  value={priceLimit ?? Math.max(sliderCeiling, 1)}
+                  disabled={loading || maxAvailablePrice === 0}
+                  onChange={(event) => {
+                    setHasCustomPriceLimit(true)
+                    setPriceLimit(Number(event.target.value))
+                  }}
+                  className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/15 accent-primary"
+                />
+                <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span>₪{PRICE_FLOOR}</span>
+                  <span>{maxAvailablePrice > sliderCeiling ? `₪${sliderCeiling}+` : `₪${sliderCeiling}`}</span>
+                </div>
+              </div>
             </div>
           </div>
 

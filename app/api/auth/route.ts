@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSessionToken, getSessionCookieOptions, SESSION_COOKIE_NAME } from '@/lib/session-server'
+import { buildPhpApiUrl } from '@/lib/php-api'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
         : null
     
     // Forward request to PHP API
-    const phpApiUrl = 'http://localhost/GrowPal/api/auth.php'
+    const phpApiUrl = buildPhpApiUrl('auth.php')
     
     const response = await fetch(phpApiUrl, {
       method: 'POST',
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Backend API returned HTML instead of JSON. Is Apache/XAMPP running? Make sure the project is in htdocs/GrowPal/ and visit http://localhost/GrowPal/api/auth.php to verify.',
+          message: `Backend API returned HTML instead of JSON. Check the PHP API at ${phpApiUrl}.`,
         },
         { status: 502 }
       )

@@ -80,7 +80,7 @@ export function Navbar() {
         <Link href={homeHref} className="flex shrink-0 items-center gap-2 self-center">
           <div className="relative flex h-9 w-9 items-center justify-center">
             <Image
-              src="/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png"
+              src="/icon.svg"
               alt="GrowPal Logo"
               width={36}
               height={36}

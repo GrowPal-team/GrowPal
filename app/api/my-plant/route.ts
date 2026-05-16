@@ -6,6 +6,7 @@ import {
   PLANT_STAGE_LABELS,
   plantProgressPercent,
 } from "@/lib/plant-gamification"
+import { getSavedRewardCode } from "@/lib/reward-codes"
 
 export async function GET(request: NextRequest) {
   const userIdRaw = request.nextUrl.searchParams.get("userId")
@@ -29,6 +30,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 })
     }
 
+    const savedReward = await getSavedRewardCode(prisma, userId)
+    const rewardCode = user.plantPendingGiftCode || savedReward?.code || null
+    const rewardCodeSource = user.plantPendingGiftCode ? "pending" : savedReward ? "saved" : null
+
     const hasPendingGift = Boolean(user.plantPendingGiftCode)
     const stage = Math.min(Math.max(0, user.plantStage), MAX_VISUAL_STAGE)
     const label =
@@ -43,6 +48,8 @@ export async function GET(request: NextRequest) {
       label,
       progressPercent: plantProgressPercent(stage, hasPendingGift),
       pendingGiftCode: user.plantPendingGiftCode,
+      rewardCode,
+      rewardCodeSource,
       completions: user.plantCompletions,
       displayName: user.full_name,
     })

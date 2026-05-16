@@ -6,8 +6,23 @@ type CatalogEnhancement = {
   idealFor: string
 }
 
+const REMOTE_WEB_IMAGE_ROTATION = [
+  "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1470058869950-acaba78e25fc?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1566875538164-c9f7a89cc1b5?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1483794344563-d27a8d98014f?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1200&q=80",
+]
+
+function hashText(value: string) {
+  return [...value].reduce((sum, char) => sum + char.charCodeAt(0), 0)
+}
+
 function webImage(filename: string) {
-  return `/Web/${encodeURIComponent(filename)}`
+  return REMOTE_WEB_IMAGE_ROTATION[hashText(filename) % REMOTE_WEB_IMAGE_ROTATION.length]
 }
 
 const GENERIC_IMAGES = {

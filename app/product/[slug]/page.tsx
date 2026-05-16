@@ -137,8 +137,10 @@ export default function ProductPage() {
     }
   }
 
+  const fallbackProductImage =
+    "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=900&q=80"
   const thumbs = product?.images?.length ? product.images : product ? [product.image] : []
-  const mainSrc = thumbs[mainIdx] || "/images/placeholder.jpg"
+  const mainSrc = thumbs[mainIdx] || fallbackProductImage
 
   if (loading) {
     return (

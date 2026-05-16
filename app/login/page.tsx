@@ -1,10 +1,11 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Check } from 'lucide-react'
 import LoginPage from '@/components/ui/gaming-login'
 import { ParticlesCanvas } from '@/components/ui/particles-canvas'
+import { saveWelcomeOffer } from '@/lib/discounts'
 
 function safeNext(raw: string | null): string {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/'
@@ -37,6 +38,12 @@ function LoginInner() {
   const [error, setError] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (promo === '10' && emailQ) {
+      saveWelcomeOffer(emailQ, 'login-query')
+    }
+  }, [promo, emailQ])
 
   const promoBanner =
     promo === '10'

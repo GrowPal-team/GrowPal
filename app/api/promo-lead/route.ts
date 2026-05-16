@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-
-const PHP_PROMO_URL = "http://localhost/GrowPal/api/promo-lead.php"
+import { buildPhpApiUrl } from "@/lib/php-api"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const res = await fetch(PHP_PROMO_URL, {
+      const res = await fetch(buildPhpApiUrl("promo-lead.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

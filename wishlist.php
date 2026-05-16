@@ -1,5 +1,7 @@
 <?php
 $pageTitle = 'Wishlist';
+require_once __DIR__ . '/includes/site_urls.php';
+$continueShoppingUrl = growpal_canonical_url('/shop', 'shop.php');
 
 include 'includes/header.php';
 ?>
@@ -11,7 +13,7 @@ include 'includes/header.php';
         <div id="wishlistItems" class="wishlist-items"></div>
         
         <div style="text-align: center; margin-top: 2rem;">
-            <a href="shop.php" class="btn btn-outline">Continue Shopping</a>
+            <a href="<?php echo htmlspecialchars($continueShoppingUrl); ?>" class="btn btn-outline">Continue Shopping</a>
         </div>
     </div>
 </section>

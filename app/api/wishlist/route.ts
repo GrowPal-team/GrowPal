@@ -5,6 +5,21 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefi
 const prisma = globalForPrisma.prisma ?? new PrismaClient()
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
+const FALLBACK_WISHLIST_IMAGE =
+  "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=900&q=80"
+
+function isUsableWishlistImage(src: string | null | undefined) {
+  if (!src) return false
+  const normalized = src.trim()
+  if (!normalized) return false
+  if (normalized.includes("placeholder")) return false
+  if (normalized.startsWith("/Web/")) return false
+  if (normalized.startsWith("/images/")) return false
+  if (normalized.startsWith("Web/")) return false
+  if (normalized.startsWith("images/")) return false
+  return true
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -28,7 +43,7 @@ export async function GET(request: Request) {
         id: p.id,
         name: p.name,
         price,
-        image: p.imageUrl || "/images/placeholder.jpg",
+        image: isUsableWishlistImage(p.imageUrl) ? p.imageUrl!.trim() : FALLBACK_WISHLIST_IMAGE,
         slug: p.slug,
       }
     })

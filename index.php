@@ -34,7 +34,8 @@ include 'includes/header.php';
         <h2 class="section-title" style="margin-top: 3rem;">Featured Products</h2>
         <div class="products-grid">
             <?php foreach ($featured_products as $product):
-                $product_image = !empty($product['image_url']) ? $product['image_url'] : '/images/placeholder.jpg';
+                $fallback_image = 'https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=900&q=80';
+                $product_image = !empty($product['image_url']) ? $product['image_url'] : $fallback_image;
                 $product_price = number_format($product['price_ils'], 2);
                 $product_description = $product['description'] ?? '';
                 $short_description = mb_substr($product_description, 0, 100);
@@ -42,7 +43,7 @@ include 'includes/header.php';
             <div class="product-card">
                 <div class="product-image">
                     <img src="<?php echo htmlspecialchars($product_image); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>"
-                         onerror="this.src='/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo htmlspecialchars($fallback_image); ?>'">
                 </div>
                 <div class="product-info">
                     <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>

@@ -1,7 +1,8 @@
 <?php
 $pageTitle = 'Shopping Cart';
-$continueShoppingUrl = 'shop.php';
-$checkoutUrl = 'checkout.php';
+require_once __DIR__ . '/includes/site_urls.php';
+$continueShoppingUrl = growpal_canonical_url('/shop', 'shop.php');
+$checkoutUrl = growpal_canonical_url('/cart', 'checkout.php');
 
 include 'includes/header.php';
 ?>

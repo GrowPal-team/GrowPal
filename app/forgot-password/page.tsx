@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <Image
-              src="/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png"
+              src="/icon.svg"
               alt="GrowPal"
               width={100}
               height={100}

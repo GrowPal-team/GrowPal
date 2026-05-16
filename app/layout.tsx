@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   title: 'GrowPal - Rooted in Home, Growing for Palestine',
   description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
   icons: {
-    icon: '/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png',
-    apple: '/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png',
+    icon: '/icon.svg',
+    apple: '/icon.svg',
   },
 }
 

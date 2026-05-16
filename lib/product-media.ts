@@ -7,19 +7,22 @@ export const FEATURED_IMAGE_RULES: {
 }[] = [
   {
     test: (n, s) => /basil/i.test(n) || /basil/i.test(s),
-    image: "/images/BasilStarterKit.jpg",
+    image:
+      "https://images.unsplash.com/photo-1748576724273-c1ed05911708?fm=jpg&q=60&w=3000&auto=format&fit=crop",
     tag: "Popular",
     shortBlurb: "Everything you need to grow aromatic basil on a windowsill or balcony.",
   },
   {
     test: (n, s) => /tomato|cherry/i.test(n) || /tomato/i.test(s),
-    image: "/images/TomatoPlants_Cherry.png",
+    image:
+      "https://images.unsplash.com/photo-1682879398606-a9606229ecb2?fm=jpg&q=60&w=3000&auto=format&fit=crop",
     tag: "Best value",
     shortBlurb: "Sweet cherry tomatoes—perfect for salads and sunny spots.",
   },
   {
     test: (n, s) => /mint/i.test(n) || /mint/i.test(s),
-    image: "/images/MintCollection.png",
+    image:
+      "https://images.unsplash.com/photo-1648036933917-762235e009c7?fm=jpg&q=60&w=3000&auto=format&fit=crop",
     tag: "New",
     shortBlurb: "Fresh mint for tea and kitchen gardens; thrives with regular water.",
   },
@@ -118,8 +121,23 @@ export function pickFeaturedHeroImage(id: number, name: string, slug: string, ap
 
 export function galleryForSlug(slug: string, mainImage: string): string[] {
   const s = slug.toLowerCase()
-  if (s.includes("basil")) return ["/images/BasilStarterKit.jpg", mainImage].filter(Boolean)
-  if (s.includes("tomato")) return ["/images/TomatoPlants_Cherry.png", mainImage].filter(Boolean)
-  if (s.includes("mint")) return ["/images/MintCollection.png", mainImage].filter(Boolean)
+  if (s.includes("basil")) {
+    return [
+      "https://images.unsplash.com/photo-1748576724273-c1ed05911708?fm=jpg&q=60&w=3000&auto=format&fit=crop",
+      mainImage,
+    ].filter(Boolean)
+  }
+  if (s.includes("tomato")) {
+    return [
+      "https://images.unsplash.com/photo-1682879398606-a9606229ecb2?fm=jpg&q=60&w=3000&auto=format&fit=crop",
+      mainImage,
+    ].filter(Boolean)
+  }
+  if (s.includes("mint")) {
+    return [
+      "https://images.unsplash.com/photo-1648036933917-762235e009c7?fm=jpg&q=60&w=3000&auto=format&fit=crop",
+      mainImage,
+    ].filter(Boolean)
+  }
   return [mainImage].filter(Boolean)
 }

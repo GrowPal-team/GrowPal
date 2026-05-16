@@ -1,6 +1,8 @@
 <?php
 $pageTitle = 'Register';
 $publicSiteUrl = rtrim(getenv('GROWPAL_SITE_URL') ?: 'http://localhost:3000', '/');
+require_once __DIR__ . '/includes/site_urls.php';
+$loginUrl = growpal_canonical_url('/login', 'login.php');
 
 include 'includes/header.php';
 ?>
@@ -33,7 +35,7 @@ include 'includes/header.php';
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
                 <p style="text-align: center; margin-top: 1rem;">
-                    Already have an account? <a href="login.php" style="color: var(--primary-color);">Login here</a>
+                    Already have an account? <a href="<?php echo htmlspecialchars($loginUrl); ?>" style="color: var(--primary-color);">Login here</a>
                 </p>
             </form>
         </div>

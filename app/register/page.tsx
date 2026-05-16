@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ParticlesCanvas } from "@/components/ui/particles-canvas"
 import LoginPage from "@/components/ui/gaming-login"
+import { saveWelcomeOffer } from "@/lib/discounts"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -49,7 +50,11 @@ export default function RegisterPage() {
     if (typeof window === "undefined") return
     const p = new URLSearchParams(window.location.search)
     const e = p.get("email")
+    const promo = p.get("promo")
     if (e) setEmail(decodeURIComponent(e))
+    if (promo === "10" && e) {
+      saveWelcomeOffer(decodeURIComponent(e), "register-query")
+    }
   }, [])
 
   // Validate email format
@@ -205,7 +210,7 @@ export default function RegisterPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <Image 
-              src="/images/ChatGPT Image 13 مارس 2026، 12_53_44 ص.png" 
+              src="/icon.svg" 
               alt="GrowPal Logo" 
               width={100} 
               height={100} 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { saveRewardCode } from "@/lib/reward-codes"
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,12 +21,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Nothing to claim" }, { status: 400 })
     }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { plantPendingGiftCode: null },
+    const rewardCode = user.plantPendingGiftCode
+
+    await prisma.$transaction(async (tx) => {
+      await saveRewardCode(tx, userId, rewardCode)
+      await tx.user.update({
+        where: { id: userId },
+        data: { plantPendingGiftCode: null },
+      })
     })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, code: rewardCode })
   } catch (e) {
     console.error("my-plant claim", e)
     return NextResponse.json({ message: "Server error" }, { status: 500 })

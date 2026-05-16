@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/site_urls.php';
+
 $current_year = date('Y');
 $footer_quick_links = [
-    ['label' => 'Home', 'href' => 'index.php'],
-    ['label' => 'Shop', 'href' => 'shop.php'],
-    ['label' => 'About Us', 'href' => 'about.php'],
-    ['label' => 'Contact', 'href' => 'contact.php'],
+    ['label' => 'Home', 'href' => growpal_canonical_url('/', 'index.php')],
+    ['label' => 'Shop', 'href' => growpal_canonical_url('/shop', 'shop.php')],
+    ['label' => 'About Us', 'href' => growpal_canonical_url('/our-story', 'about.php')],
+    ['label' => 'Contact', 'href' => growpal_canonical_url('/contact', 'contact.php')],
 ];
 $footer_support_links = [
     ['label' => 'Shipping Info', 'href' => '#'],

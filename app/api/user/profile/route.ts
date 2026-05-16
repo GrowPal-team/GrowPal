@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-
-const PHP_PROFILE_URL = "http://localhost/GrowPal/api/user-profile.php"
+import { buildPhpApiUrl } from "@/lib/php-api"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const response = await fetch(PHP_PROFILE_URL, {
+    const response = await fetch(buildPhpApiUrl("user-profile.php"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

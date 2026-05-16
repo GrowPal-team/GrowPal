@@ -2,6 +2,18 @@ import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import { enrichProductCopy } from "@/lib/shop-catalog"
 
+function isUsableCatalogImage(src: string | null | undefined) {
+  if (!src) return false
+  const normalized = src.trim()
+  if (!normalized) return false
+  if (normalized.includes("placeholder")) return false
+  if (normalized.startsWith("/Web/")) return false
+  if (normalized.startsWith("/images/")) return false
+  if (normalized.startsWith("Web/")) return false
+  if (normalized.startsWith("images/")) return false
+  return true
+}
+
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
 const prisma = globalForPrisma.prisma ?? new PrismaClient()
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
@@ -45,7 +57,7 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
       waterLevel: String(product.water_level),
       spaceType: spaceTypeValue,
     })
-    const mainImage = product.imageUrl?.trim() || enhancement.primaryImage
+    const mainImage = isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage
     const images = Array.from(new Set([mainImage, enhancement.secondaryImage].filter(Boolean)))
 
     let related = await prisma.product.findMany({
@@ -82,7 +94,7 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
       slug: p.slug,
       price: Number(p.price_ils),
       image:
-        p.imageUrl?.trim() ||
+        (isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : "") ||
         enrichProductCopy({
         slug: p.slug,
         category: p.categoryId === product.categoryId ? product.category?.name : null,

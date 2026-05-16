@@ -59,7 +59,8 @@ include 'includes/header.php';
         <div class="products-grid" id="productsGrid">
             <?php if ($has_products): ?>
                 <?php foreach ($products as $product):
-                    $product_image = !empty($product['image_url']) ? $product['image_url'] : '/images/placeholder.jpg';
+                    $fallback_image = 'https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=900&q=80';
+                    $product_image = !empty($product['image_url']) ? $product['image_url'] : $fallback_image;
                     $product_price = number_format($product['price_ils'], 2);
                     $product_description = $product['description'] ?? '';
                     $short_description = mb_substr($product_description, 0, 100);
@@ -69,7 +70,7 @@ include 'includes/header.php';
                      data-category-id="<?php echo $product['category_id']; ?>">
                     <div class="product-image">
                         <img src="<?php echo htmlspecialchars($product_image); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>"
-                             onerror="this.src='/images/placeholder.jpg'">
+                             onerror="this.src='<?php echo htmlspecialchars($fallback_image); ?>'">
                     </div>
                     <div class="product-info">
                         <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>

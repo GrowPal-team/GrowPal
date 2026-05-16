@@ -17,6 +17,8 @@ type PlantPayload = {
   label: string
   progressPercent: number
   pendingGiftCode: string | null
+  rewardCode: string | null
+  rewardCodeSource: "pending" | "saved" | null
   completions: number
   displayName: string
 }
@@ -71,7 +73,7 @@ export function MyPlantExperience({
   const copyCode = async (code: string) => {
     try {
       await navigator.clipboard.writeText(code)
-      toast({ title: "Code copied", description: "Paste it at checkout to redeem." })
+      toast({ title: "Code copied", description: "Paste it at checkout for 10% off." })
     } catch {
       toast({ title: "Copy failed", description: code, variant: "destructive" })
     }
@@ -90,9 +92,12 @@ export function MyPlantExperience({
         const j = await res.json().catch(() => ({}))
         throw new Error(j.message || "Claim failed")
       }
+      const payload = (await res.json().catch(() => ({}))) as { code?: string }
       toast({
-        title: "Enjoy your perk",
-        description: "Your plant is ready for the next growth cycle.",
+        title: "Code saved",
+        description: payload.code
+          ? `${payload.code} is still valid at checkout, and your plant can grow again now.`
+          : "Your reward code is still valid at checkout, and your plant can grow again now.",
       })
       await load(userId)
     } catch (e) {
@@ -127,6 +132,7 @@ export function MyPlantExperience({
   }
 
   const blooming = Boolean(data.pendingGiftCode)
+  const rewardCode = data.rewardCode
   const ordersLeft = blooming ? 0 : ORDERS_PER_BLOOM - data.stage
 
   return (
@@ -153,7 +159,7 @@ export function MyPlantExperience({
           {!compact && (
             <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
               Each completed order waters your virtual companion. After {ORDERS_PER_BLOOM} orders, it blooms and
-              unlocks a GrowPal gift card code — our thank-you for choosing sustainable greens.
+              unlocks a 10% GrowPal reward code for your next checkout.
             </p>
           )}
           {compact && (
@@ -190,47 +196,50 @@ export function MyPlantExperience({
 
         <div className="flex flex-col items-center">
           <VirtualPlantScene stage={data.stage} blooming={blooming} />
-          {(rewardHint || blooming) && data.pendingGiftCode && (
+          {(rewardHint || blooming) && rewardCode && (
             <p className="mt-2 text-center text-xs font-medium text-primary">Your reward is ready below</p>
           )}
         </div>
       </div>
 
-      {data.pendingGiftCode && (
+      {rewardCode && (
         <div className="mt-8 rounded-2xl border border-[#c4a574]/50 bg-[#fffdf8] p-5 shadow-inner">
           <div className="flex flex-wrap items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f4d58d]/40">
               <Gift className="h-5 w-5 text-[#8b6914]" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-serif text-lg font-semibold text-foreground">Your gift card</h3>
+              <h3 className="font-serif text-lg font-semibold text-foreground">Your reward code</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Use this code on your next purchase (demo reward). Tap copy, then mark as saved when you&apos;re
-                done.
+                {data.rewardCodeSource === "saved"
+                  ? "This saved code is still valid at checkout for 10% off your next order."
+                  : "Use this code at checkout for 10% off your next order. Tap copy, then mark it as saved when you&apos;re done."}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <code className="rounded-xl border border-[#e4d5c1] bg-white px-4 py-2.5 font-mono text-sm font-semibold tracking-wide text-foreground">
-                  {data.pendingGiftCode}
+                  {rewardCode}
                 </code>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="rounded-full gap-1.5"
-                  onClick={() => void copyCode(data.pendingGiftCode!)}
+                  onClick={() => void copyCode(rewardCode)}
                 >
                   <Copy className="h-4 w-4" />
                   Copy
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="rounded-full"
-                  disabled={claiming}
-                  onClick={() => void claimReward()}
-                >
-                  {claiming ? <Loader2 className="h-4 w-4 animate-spin" /> : "I saved my code"}
-                </Button>
+                {data.pendingGiftCode && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="rounded-full"
+                    disabled={claiming}
+                    onClick={() => void claimReward()}
+                  >
+                    {claiming ? <Loader2 className="h-4 w-4 animate-spin" /> : "I saved my code"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

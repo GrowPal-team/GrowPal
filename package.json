@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "verify-db": "node scripts/verify-db.mjs"
+    "verify-db": "node scripts/verify-db.mjs",
+    "seed:shop": "node sync-shop-products.js",
+    "setup:reward-codes": "node scripts/setup-reward-codes.mjs",
+    "prepare:deploy": "npm run verify-db && npm run setup:reward-codes && npm run seed:shop && npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

@@ -2,13 +2,43 @@ import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { nextPlantStateAfterOrder } from "@/lib/plant-gamification"
+import { REWARD_CODE_DISCOUNT_PERCENT, WELCOME_DISCOUNT_PERCENT } from "@/lib/discounts"
+import {
+  getSavedRewardCode,
+  hasAnyRewardCodeHistory,
+  markRewardCodeRedeemed,
+} from "@/lib/reward-codes"
 
 type CheckoutItem = { productId?: number; quantity?: number }
+type CheckoutBody = {
+  userId?: number
+  items?: CheckoutItem[]
+  discountCode?: string
+  applyWelcomeDiscount?: boolean
+}
+
+async function findPromoLeadByEmail(tx: Prisma.TransactionClient, email: string) {
+  try {
+    const rows = await tx.$queryRaw<{ email: string; discount_label: string | null }[]>`
+      SELECT email, discount_label
+      FROM promo_leads
+      WHERE email = ${email}
+      LIMIT 1
+    `
+    return rows[0] ?? null
+  } catch {
+    return null
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as { userId?: number; items?: CheckoutItem[] }
+    const body = (await request.json()) as CheckoutBody
     const userId = body.userId != null ? Number(body.userId) : NaN
+    const requestedDiscountCode = String(body.discountCode ?? "")
+      .trim()
+      .toUpperCase()
+    const applyWelcomeDiscount = body.applyWelcomeDiscount === true
     if (!Number.isFinite(userId) || userId < 1) {
       return NextResponse.json({ message: "Invalid userId" }, { status: 400 })
     }
@@ -33,6 +63,7 @@ export async function POST(request: NextRequest) {
       where: { id: userId },
       select: {
         id: true,
+        email: true,
         plantStage: true,
         plantPendingGiftCode: true,
         plantCompletions: true,
@@ -43,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      let total = new Prisma.Decimal(0)
+      let subtotal = new Prisma.Decimal(0)
       const orderItems: { productId: number; qty: number; price_ils: Prisma.Decimal }[] = []
 
       for (const line of normalized) {
@@ -58,7 +89,7 @@ export async function POST(request: NextRequest) {
           throw new Error(`STOCK_${line.productId}`)
         }
         const lineTotal = product.price_ils.mul(line.quantity)
-        total = total.add(lineTotal)
+        subtotal = subtotal.add(lineTotal)
         orderItems.push({
           productId: product.id,
           qty: line.quantity,
@@ -66,10 +97,46 @@ export async function POST(request: NextRequest) {
         })
       }
 
+      const previousOrdersCount = await tx.order.count({ where: { userId } })
+      const promoLead = applyWelcomeDiscount && user.email ? await findPromoLeadByEmail(tx, user.email) : null
+      const normalizedPendingRewardCode = user.plantPendingGiftCode?.trim().toUpperCase() || ""
+      const savedRewardCode = requestedDiscountCode ? await getSavedRewardCode(tx, userId, requestedDiscountCode) : null
+      const hasRewardHistory = requestedDiscountCode ? await hasAnyRewardCodeHistory(tx, userId) : false
+      const looksLikeRewardCode = /^GROWPAL-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(requestedDiscountCode)
+      const recoveredLegacyClaim =
+        requestedDiscountCode !== "" &&
+        !normalizedPendingRewardCode &&
+        !savedRewardCode &&
+        !hasRewardHistory &&
+        looksLikeRewardCode &&
+        user.plantCompletions > 0
+      const rewardCodeApplied =
+        requestedDiscountCode !== "" &&
+        ((normalizedPendingRewardCode !== "" && requestedDiscountCode === normalizedPendingRewardCode) ||
+          Boolean(savedRewardCode) ||
+          recoveredLegacyClaim)
+
+      if (requestedDiscountCode !== "" && !rewardCodeApplied) {
+        throw new Error("DISCOUNT_CODE_INVALID")
+      }
+
+      const welcomeDiscountApplied = applyWelcomeDiscount && previousOrdersCount === 0 && Boolean(promoLead)
+      const discountPercent = rewardCodeApplied
+        ? REWARD_CODE_DISCOUNT_PERCENT
+        : welcomeDiscountApplied
+          ? WELCOME_DISCOUNT_PERCENT
+          : 0
+      const discountAmount = subtotal.mul(discountPercent).div(100)
+      const finalTotal = subtotal.sub(discountAmount)
+
+      if (savedRewardCode) {
+        await markRewardCodeRedeemed(tx, userId, savedRewardCode.code)
+      }
+
       const order = await tx.order.create({
         data: {
           userId,
-          total_ils: total,
+          total_ils: finalTotal,
           status: "PAID_MOCK",
           orderItems: {
             create: orderItems.map((oi) => ({
@@ -98,7 +165,7 @@ export async function POST(request: NextRequest) {
 
       const nextPlant = nextPlantStateAfterOrder({
         stage: user.plantStage,
-        pendingGiftCode: user.plantPendingGiftCode,
+        pendingGiftCode: rewardCodeApplied ? null : user.plantPendingGiftCode,
         completions: user.plantCompletions,
       })
 
@@ -120,7 +187,20 @@ export async function POST(request: NextRequest) {
         order,
         plant: nextPlant,
         plantDidGrow,
-        hadPendingGiftBlocked: Boolean(user.plantPendingGiftCode) && !plantDidGrow,
+        hadPendingGiftBlocked: Boolean(user.plantPendingGiftCode) && !rewardCodeApplied && !plantDidGrow,
+        discount: {
+          type: rewardCodeApplied
+            ? recoveredLegacyClaim
+              ? "reward-code-recovery"
+              : "reward-code"
+            : welcomeDiscountApplied
+              ? "welcome-offer"
+              : null,
+          percent: discountPercent,
+          amount: discountAmount,
+          subtotal,
+          total: finalTotal,
+        },
       }
     })
 
@@ -128,6 +208,13 @@ export async function POST(request: NextRequest) {
       ok: true,
       orderId: result.order.id,
       totalIls: result.order.total_ils.toString(),
+      pricing: {
+        subtotalIls: result.discount.subtotal.toString(),
+        discountAmountIls: result.discount.amount.toString(),
+        totalIls: result.discount.total.toString(),
+        discountType: result.discount.type,
+        discountPercent: result.discount.percent,
+      },
       plant: {
         stage: result.plant.stage,
         pendingGiftCode: result.plant.pendingGiftCode,
@@ -145,6 +232,9 @@ export async function POST(request: NextRequest) {
     }
     if (msg.startsWith("STOCK_")) {
       return NextResponse.json({ message: "Not enough stock for an item in your cart." }, { status: 400 })
+    }
+    if (msg === "DISCOUNT_CODE_INVALID") {
+      return NextResponse.json({ message: "This discount code is invalid for your account." }, { status: 400 })
     }
     console.error("checkout POST", e)
     return NextResponse.json({ message: "Could not complete order" }, { status: 500 })

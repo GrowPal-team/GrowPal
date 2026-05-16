@@ -7,6 +7,7 @@ import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { clientIsGuest } from "@/lib/session-client"
+import { saveWelcomeOffer } from "@/lib/discounts"
 
 const DELAY_MS = 10_000
 
@@ -81,6 +82,7 @@ export function LeadCaptureModal() {
     } finally {
       setBusy(false)
     }
+    saveWelcomeOffer(e, "next-home-modal")
     dismiss()
     router.push(`/register?promo=10&email=${encodeURIComponent(e)}`)
   }

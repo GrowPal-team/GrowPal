@@ -2,6 +2,18 @@ import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import { enrichProductCopy } from "@/lib/shop-catalog"
 
+function isUsableCatalogImage(src: string | null | undefined) {
+  if (!src) return false
+  const normalized = src.trim()
+  if (!normalized) return false
+  if (normalized.includes("placeholder")) return false
+  if (normalized.startsWith("/Web/")) return false
+  if (normalized.startsWith("/images/")) return false
+  if (normalized.startsWith("Web/")) return false
+  if (normalized.startsWith("images/")) return false
+  return true
+}
+
 // إنشاء instance واحد من Prisma Client
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -78,7 +90,7 @@ export async function GET(request: Request) {
         waterLevel,
         spaceType: spaceTypeValue,
       })
-      const primaryImage = product.imageUrl?.trim() || enhancement.primaryImage
+      const primaryImage = isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage
 
       return {
         id: product.id,

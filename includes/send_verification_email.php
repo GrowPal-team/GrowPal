@@ -36,6 +36,23 @@ function growpal_create_mailer(
     return $mail;
 }
 
+function growpal_logo_mime_type(string $path): string {
+    $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    if ($extension === 'svg') {
+        return 'image/svg+xml';
+    }
+    if ($extension === 'jpg' || $extension === 'jpeg') {
+        return 'image/jpeg';
+    }
+    if ($extension === 'gif') {
+        return 'image/gif';
+    }
+    if ($extension === 'webp') {
+        return 'image/webp';
+    }
+    return 'image/png';
+}
+
 function growpal_get_logo_url(
     bool $embedForMailer = false,
     ?\PHPMailer\PHPMailer\PHPMailer $mail = null
@@ -45,11 +62,11 @@ function growpal_get_logo_url(
     }
 
     if ($embedForMailer && $mail !== null) {
-        $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', 'logo.png');
+        $mail->addEmbeddedImage(LOGO_PATH, 'growpalogo', basename(LOGO_PATH), 'base64', growpal_logo_mime_type(LOGO_PATH));
         return 'cid:growpalogo';
     }
 
-    return 'data:image/png;base64,' . base64_encode(file_get_contents(LOGO_PATH));
+    return 'data:' . growpal_logo_mime_type(LOGO_PATH) . ';base64,' . base64_encode(file_get_contents(LOGO_PATH));
 }
 
 function growpal_render_email_template(string $templatePath, array $variables = []): string {

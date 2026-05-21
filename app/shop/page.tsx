@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -175,14 +175,14 @@ export default function ShopPage() {
       >
         <div className="relative aspect-square overflow-hidden bg-muted/30">
           <Link href={href} className="relative block h-full w-full">
-            <Image
+            <PublicImage
               src={product.image}
               alt={product.name}
               fill
               className={`object-cover transition-all duration-500 ${product.secondaryImage ? "opacity-100 group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105"}`}
             />
             {product.secondaryImage && (
-              <Image
+              <PublicImage
                 src={product.secondaryImage}
                 alt={`${product.name} alternate view`}
                 fill

@@ -1,7 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ContentPageShell } from "@/components/content-page-shell"
-import { publicAssetUrl } from "@/lib/asset-path"
+import { PublicImage } from "@/components/public-image"
 
 export default function OurStoryPage() {
   return (
@@ -25,8 +24,8 @@ export default function OurStoryPage() {
 
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="relative aspect-square">
-            <Image
-              src={publicAssetUrl("/images/us.jpeg")}
+            <PublicImage
+              src="/images/us.jpeg"
               alt="GrowPal founders"
               fill
               className="object-cover"

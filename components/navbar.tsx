@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import { useState, useEffect, useCallback } from "react"
 import { ShoppingCart, Heart, Menu, X, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -79,7 +79,7 @@ export function Navbar() {
       <div className="relative mx-auto flex max-w-7xl items-start gap-2 px-3 py-2 sm:items-center sm:gap-3 sm:px-4 sm:py-3 lg:px-8">
         <Link href={homeHref} className="flex shrink-0 items-center gap-2 self-center">
           <div className="relative flex h-9 w-9 items-center justify-center">
-            <Image
+            <PublicImage
               src={BRAND_LOGO_SRC}
               alt="GrowPal Logo"
               width={36}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -80,7 +80,7 @@ function FeaturedPackageCard({
         }}
       >
         <div className="absolute inset-0 z-0 overflow-hidden rounded-t-2xl">
-          <Image
+          <PublicImage
             src={pkg.image}
             alt={pkg.name}
             fill

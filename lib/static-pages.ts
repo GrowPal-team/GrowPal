@@ -1,4 +1,5 @@
 import { filterDemoProducts, getDemoProductBySlug } from "@/lib/demo-catalog"
+import { resolvePublicUrl } from "@/lib/asset-path"
 
 /** True when the app is built for GitHub Pages (static export, no API routes). */
 export const isStaticPagesDeploy =
@@ -12,12 +13,18 @@ export async function fetchProductList(searchParams?: URLSearchParams) {
     return response.json()
   }
 
-  return filterDemoProducts({
+  const products = filterDemoProducts({
     spaceType: searchParams?.get("spaceType"),
     sunExposure: searchParams?.get("sunExposure"),
     waterLevel: searchParams?.get("waterLevel"),
     budget: searchParams?.get("budget"),
   })
+
+  return products.map((p) => ({
+    ...p,
+    image: resolvePublicUrl(p.image),
+    secondaryImage: p.secondaryImage ? resolvePublicUrl(p.secondaryImage) : undefined,
+  }))
 }
 
 export async function fetchProductDetail(slug: string) {
@@ -29,7 +36,16 @@ export async function fetchProductDetail(slug: string) {
 
   const product = getDemoProductBySlug(slug)
   if (!product) throw new Error("not found")
-  return product
+  return {
+    ...product,
+    image: resolvePublicUrl(product.image),
+    secondaryImage: product.secondaryImage ? resolvePublicUrl(product.secondaryImage) : undefined,
+    images: product.images.map((url) => resolvePublicUrl(url)),
+    suggestions: product.suggestions.map((s) => ({
+      ...s,
+      image: resolvePublicUrl(s.image),
+    })),
+  }
 }
 
 export async function fetchProductReviews(_slug: string) {

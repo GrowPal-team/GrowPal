@@ -1,3 +1,5 @@
+import { resolvePublicUrl } from "@/lib/asset-path"
+
 /** Featured hero images keyed by product name/slug (local assets + Unsplash). */
 export const FEATURED_IMAGE_RULES: {
   test: (name: string, slug: string) => boolean
@@ -98,18 +100,28 @@ function isWeakImage(src: string) {
   return false
 }
 
-/** Hero image for featured carousel: rules → DB image → Unsplash rotation. */
+/** Hero image for featured carousel: catalog image → rules → Unsplash rotation. */
 export function pickFeaturedHeroImage(id: number, name: string, slug: string, apiImage: string) {
   const rule = matchFeaturedRule(name, slug)
-  if (rule) return { src: rule.image, tag: rule.tag, shortBlurb: rule.shortBlurb, fromRule: true }
+
   if (!isWeakImage(apiImage)) {
     return {
-      src: apiImage,
-      tag: "Curated",
-      shortBlurb: "",
+      src: resolvePublicUrl(apiImage),
+      tag: rule?.tag ?? "Curated",
+      shortBlurb: rule?.shortBlurb ?? "",
       fromRule: false,
     }
   }
+
+  if (rule) {
+    return {
+      src: resolvePublicUrl(rule.image),
+      tag: rule.tag,
+      shortBlurb: rule.shortBlurb,
+      fromRule: true,
+    }
+  }
+
   const src = CURATED_UNSPLASH_ROTATION[Math.abs(id) % CURATED_UNSPLASH_ROTATION.length]
   return {
     src,

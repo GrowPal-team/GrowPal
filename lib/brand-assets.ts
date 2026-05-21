@@ -1,7 +1,8 @@
 import { publicAssetUrl } from "@/lib/asset-path"
 
-/** Small logo — navbar, favicon, transactional email. */
-export const BRAND_LOGO_SRC = publicAssetUrl("/images/Icon (1).jpeg")
+/** Small logo — navbar, favicon (metadata uses publicAssetUrl; UI uses PublicImage). */
+export const BRAND_LOGO_SRC = "/images/Icon (1).jpeg"
+export const BRAND_LOGO_ICON = publicAssetUrl(BRAND_LOGO_SRC)
 
 /** Auth screens illustration (login, register, password reset, verify email). */
-export const AUTH_HERO_SRC = publicAssetUrl("/images/growpal-auth-hero.png")
+export const AUTH_HERO_SRC = "/images/growpal-auth-hero.png"

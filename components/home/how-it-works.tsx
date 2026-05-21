@@ -1,5 +1,5 @@
-import Image from "next/image"
-import { assetPath, publicAssetUrl } from "@/lib/asset-path"
+import { assetPath } from "@/lib/asset-path"
+import { PublicImage } from "@/components/public-image"
 
 const steps = [
   {
@@ -58,8 +58,8 @@ export function HowItWorks() {
                     playsInline
                   />
                 ) : (
-                  <Image
-                    src={publicAssetUrl(step.media.src)}
+                  <PublicImage
+                    src={step.media.src}
                     alt={step.title}
                     width={80}
                     height={80}

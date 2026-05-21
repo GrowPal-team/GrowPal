@@ -69,6 +69,19 @@ try {
     }
   }
 
+  const publicWeb = path.join(projectRoot, "public", "Web")
+  const publicImages = path.join(projectRoot, "public", "images")
+  if (!fs.existsSync(publicWeb) || fs.readdirSync(publicWeb).length === 0) {
+    throw new Error(
+      "public/Web is missing or empty. Copy plant photos into public/Web before build:pages.",
+    )
+  }
+  if (!fs.existsSync(publicImages) || fs.readdirSync(publicImages).length < 2) {
+    throw new Error(
+      "public/images is missing product images. Copy assets into public/images before build:pages.",
+    )
+  }
+
   console.log("Building static export for GitHub Pages...")
   run("npm", ["run", "build"], {
     GITHUB_PAGES: "1",

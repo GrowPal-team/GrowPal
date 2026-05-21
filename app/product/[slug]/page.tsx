@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
@@ -204,12 +204,12 @@ export default function ProductPage() {
                       mainIdx === i ? "border-primary ring-2 ring-primary/20" : "border-transparent opacity-80 hover:opacity-100"
                     }`}
                   >
-                    <Image src={src} alt="" fill className="object-cover" sizes="80px" />
+                    <PublicImage src={src} alt="" fill className="object-cover" sizes="80px" />
                   </button>
                 ))}
               </div>
               <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-2xl bg-muted/30 lg:min-h-[420px]">
-                <Image
+                <PublicImage
                   src={mainSrc}
                   alt={product.name}
                   fill
@@ -353,7 +353,7 @@ export default function ProductPage() {
                     className="flex gap-3 rounded-2xl border border-border/80 bg-card p-3 transition hover:shadow-md"
                   >
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
-                      <Image src={s.image} alt={s.name} fill className="object-cover" sizes="64px" />
+                      <PublicImage src={s.image} alt={s.name} fill className="object-cover" sizes="64px" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-foreground line-clamp-2">{s.name}</p>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GrowPal — Project Overview</title>
+  <meta name="description" content="GrowPal: sustainable plant discovery, shop, and climate-zone recommendations. Academic submission — run the full application locally.">
+  <link rel="icon" href="../public/images/iccoonnn.png" type="image/png">
+  <style>
+    :root {
+      --green-900: #14532d;
+      --green-700: #15803d;
+      --green-100: #dcfce7;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --bg: #f8faf9;
+      --card: #ffffff;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, var(--green-900), var(--green-700));
+      color: #fff;
+      padding: 2.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 0.5rem; font-size: 2.25rem; font-weight: 700; }
+    header p { margin: 0 auto; max-width: 42rem; opacity: 0.95; }
+    .badge {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    section { margin-bottom: 2.5rem; }
+    h2 {
+      font-size: 1.35rem;
+      color: var(--green-900);
+      border-bottom: 2px solid var(--green-100);
+      padding-bottom: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .notice {
+      background: #fffbeb;
+      border-color: #fcd34d;
+    }
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    figure {
+      margin: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    figcaption {
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    a { color: var(--green-700); font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    ul { padding-left: 1.25rem; }
+    code {
+      background: var(--green-100);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GrowPal</h1>
+    <p>Full-stack plant discovery, shop, climate-zone guidance, and checkout — submitted as a coursework deliverable.</p>
+    <span class="badge">Static preview · Full app runs locally (Next.js + PHP + MySQL)</span>
+  </header>
+
+  <main>
+    <section>
+      <h2>Why this page?</h2>
+      <div class="card notice">
+        <p><strong>GitHub Pages serves static files only.</strong> It cannot run the Next.js server, PHP APIs, or MySQL database. This site is a <em>project overview</em> with screenshots. To use the real application, clone the repository and follow the setup steps in the README.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Screenshots</h2>
+      <div class="grid">
+        <figure>
+          <img src="screenshots/home.png" alt="GrowPal home page" width="400" height="auto">
+          <figcaption>Home</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/shop.png" alt="GrowPal shop page" width="400" height="auto">
+          <figcaption>Shop</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/climate-zones.png" alt="GrowPal climate zones" width="400" height="auto">
+          <figcaption>Climate zones</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>Run the full project</h2>
+      <div class="card">
+        <ol>
+          <li>Clone <a href="https://github.com/GrowPal-team/GrowPal">github.com/GrowPal-team/GrowPal</a></li>
+          <li>Install dependencies: <code>npm install</code> and <code>composer install</code></li>
+          <li>Configure <code>.env</code> and MySQL (see README)</li>
+          <li>Start XAMPP, then <code>npm run dev</code> → <code>http://localhost:3000</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>Repository</h2>
+      <div class="card">
+        <p>Source code, commit history, and documentation:</p>
+        <p><a href="https://github.com/GrowPal-team/GrowPal">View on GitHub</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    GrowPal Team · Academic submission · <a href="https://github.com/GrowPal-team/GrowPal">Repository</a>
+  </footer>
+</body>
+</html>

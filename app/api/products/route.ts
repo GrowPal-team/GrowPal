@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { enrichProductCopy } from "@/lib/shop-catalog"
+import { enrichProductCopy, SHOP_CATALOG_SLUGS } from "@/lib/shop-catalog"
 
 function isUsableCatalogImage(src: string | null | undefined) {
   if (!src) return false
@@ -67,12 +67,12 @@ export async function GET(request: Request) {
         category: true,
       },
       where: {
+        slug: { in: [...SHOP_CATALOG_SLUGS] },
         stock_quantity: {
           gt: 0, // فقط المنتجات المتوفرة
         },
         is_active: true, // فقط المنتجات النشطة
       },
-      take: 50, // حد أقصى 50 منتج
     })
 
     // تحويل البيانات إلى الصيغة المطلوبة

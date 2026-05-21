@@ -3,7 +3,7 @@ const { PrismaClient } = require("@prisma/client")
 const prisma = new PrismaClient()
 
 function localAsset(path) {
-  return encodeURI(path)
+  return path.startsWith("/") ? path : `/${path}`
 }
 
 const REMOTE_WEB_IMAGE_ROTATION = [
@@ -399,7 +399,7 @@ const products = [
     slug: "gardening-essentials-combo",
     description: "Starter set with gloves, hand tools, and a watering can for daily plant care.",
     price_ils: 79,
-    imageUrl: localAsset("/images/garden-supplies.jpg"),
+    imageUrl: webImage("Gardening Essentials Combo- Gardening Gloves, Garden Tool Kit & Watering Can1.jpg"),
     category: "Plant Care Tools",
     sun_exposure: "Full_Sun",
     water_level: "Low",

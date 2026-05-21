@@ -1,3 +1,6 @@
+import { decodeAssetPath } from "@/lib/asset-path"
+import shopSeeds from "@/data/shop-product-seeds.json"
+
 type CatalogEnhancement = {
   primaryImage: string
   secondaryImage: string
@@ -6,10 +9,17 @@ type CatalogEnhancement = {
   idealFor: string
 }
 
+/** Canonical local path (decoded). Encoding happens once in resolvePublicUrl. */
 function localAsset(path: string) {
   const normalized = path.startsWith("/") ? path : `/${path}`
-  return encodeURI(normalized)
+  return decodeAssetPath(normalized)
 }
+
+export const SHOP_CATALOG_SLUGS = new Set(shopSeeds.map((s) => s.slug))
+
+const SEED_IMAGE_BY_SLUG = Object.fromEntries(
+  shopSeeds.map((s) => [s.slug, localAsset(s.imageUrl)]),
+) as Record<string, string>
 
 function isLocalProductImage(src: string | null | undefined) {
   if (!src) return false
@@ -396,6 +406,13 @@ export function getCatalogEnhancement(slug: string, category?: string | null): C
   }
 }
 
+export function resolveShopPrimaryImage(slug: string, imageUrl?: string | null) {
+  const seedImage = SEED_IMAGE_BY_SLUG[slug]
+  if (seedImage) return seedImage
+  if (isLocalProductImage(imageUrl) && imageUrl) return localAsset(imageUrl)
+  return getCatalogEnhancement(slug).primaryImage
+}
+
 export function enrichProductCopy(args: {
   slug: string
   category?: string | null
@@ -406,10 +423,7 @@ export function enrichProductCopy(args: {
   imageUrl?: string | null
 }) {
   const enhancement = getCatalogEnhancement(args.slug, args.category)
-  const primaryImage =
-    isLocalProductImage(args.imageUrl) && args.imageUrl
-      ? localAsset(args.imageUrl)
-      : enhancement.primaryImage
+  const primaryImage = resolveShopPrimaryImage(args.slug, args.imageUrl)
   const parts = [
     args.baseDescription?.trim() || enhancement.shortDescription,
     `Best for ${enhancement.idealFor.toLowerCase()}.`,

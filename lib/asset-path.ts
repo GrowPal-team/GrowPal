@@ -3,9 +3,26 @@ function getBasePath() {
   return process.env.NEXT_PUBLIC_BASE_PATH ?? ""
 }
 
+/** Undo accidental double-encoding from DB (e.g. %2520 → space). */
+export function decodeAssetPath(path: string) {
+  if (!path.includes("%")) return path
+  let current = path
+  for (let i = 0; i < 4 && current.includes("%"); i += 1) {
+    try {
+      const next = decodeURIComponent(current)
+      if (next === current) break
+      current = next
+    } catch {
+      break
+    }
+  }
+  return current
+}
+
 function normalizeLocalPath(path: string) {
   const base = getBasePath()
   let normalized = path.startsWith("/") ? path : `/${path}`
+  normalized = decodeAssetPath(normalized)
   if (base && normalized.startsWith(`${base}/`)) {
     normalized = normalized.slice(base.length) || "/"
   }

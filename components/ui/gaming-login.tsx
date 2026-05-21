@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { PublicImage } from '@/components/public-image'
-import { BRAND_LOGO_SRC } from '@/lib/brand-assets'
+import { AUTH_LOGO_SRC } from '@/lib/brand-assets'
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string, remember: boolean) => void
@@ -130,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       <div className="mb-8 text-center">
         <Link href={homeHref} className="inline-flex items-center justify-center mb-1">
           <PublicImage
-            src={BRAND_LOGO_SRC}
+            src={AUTH_LOGO_SRC}
             alt="GrowPal Logo"
             width={100}
             height={100}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 import { PublicImage } from "@/components/public-image"
-import { BRAND_LOGO_SRC } from "@/lib/brand-assets"
+import { AUTH_LOGO_SRC } from "@/lib/brand-assets"
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -212,7 +212,7 @@ export default function RegisterPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <PublicImage
-              src={BRAND_LOGO_SRC}
+              src={AUTH_LOGO_SRC}
               alt="GrowPal Logo"
               width={100}
               height={100}

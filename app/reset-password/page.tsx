@@ -11,7 +11,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { ParticlesCanvas } from "@/components/ui/particles-canvas"
 import LoginPage from "@/components/ui/gaming-login"
 import { assetPath } from "@/lib/asset-path"
-import { BRAND_LOGO_SRC } from "@/lib/brand-assets"
+import { AUTH_LOGO_SRC } from "@/lib/brand-assets"
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -101,7 +101,7 @@ function ResetPasswordContent() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <PublicImage
-              src={BRAND_LOGO_SRC}
+              src={AUTH_LOGO_SRC}
               alt="GrowPal"
               width={100}
               height={100}

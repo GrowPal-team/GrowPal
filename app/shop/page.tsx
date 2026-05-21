@@ -13,7 +13,6 @@ import { addToCart, addToWishlistWithSync, type WishlistLine } from "@/lib/shopp
 import { loadClimatePrefs, clearClimatePrefs } from "@/lib/climate-zones"
 import { ensureLoggedInForShopping } from "@/lib/purchase-guard"
 import { fetchProductList } from "@/lib/static-pages"
-import { resolvePublicUrl } from "@/lib/asset-path"
 
 type Product = {
   id: number
@@ -177,14 +176,14 @@ export default function ShopPage() {
         <div className="relative aspect-square overflow-hidden bg-muted/30">
           <Link href={href} className="relative block h-full w-full">
             <Image
-              src={resolvePublicUrl(product.image)}
+              src={product.image}
               alt={product.name}
               fill
               className={`object-cover transition-all duration-500 ${product.secondaryImage ? "opacity-100 group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105"}`}
             />
             {product.secondaryImage && (
               <Image
-                src={resolvePublicUrl(product.secondaryImage)}
+                src={product.secondaryImage}
                 alt={`${product.name} alternate view`}
                 fill
                 className="object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"

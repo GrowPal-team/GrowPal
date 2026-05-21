@@ -211,7 +211,7 @@ export default function RegisterPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
             <Image 
-              src={assetPath("/images/iccoonnn.png")}
+              src="/images/iccoonnn.png"
               alt="GrowPal Logo"
               width={100} 
               height={100} 

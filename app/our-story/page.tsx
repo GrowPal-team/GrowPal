@@ -1,7 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ContentPageShell } from "@/components/content-page-shell"
-import { assetPath } from "@/lib/asset-path"
 
 export default function OurStoryPage() {
   return (
@@ -26,7 +25,7 @@ export default function OurStoryPage() {
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="relative aspect-square">
             <Image
-              src={assetPath("/images/us.jpeg")}
+              src="/images/us.jpeg"
               alt="GrowPal founders"
               fill
               className="object-cover"

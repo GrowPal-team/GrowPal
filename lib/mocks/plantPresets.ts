@@ -7,7 +7,7 @@ export type RecommendedPlant = {
   image: string
 }
 
-import { assetPath as localAsset } from "@/lib/asset-path"
+const localAsset = (path: string) => encodeURI(path)
 
 const remoteAsset = (url: string) => url
 

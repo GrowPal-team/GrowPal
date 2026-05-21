@@ -12,6 +12,11 @@ const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans' })
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_STATIC_PAGES === '1'
+      ? 'https://growpal-team.github.io/GrowPal'
+      : 'http://localhost:3000',
+  ),
   title: 'GrowPal - Rooted in Home, Growing for Palestine',
   description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
   icons: {

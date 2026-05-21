@@ -59,7 +59,7 @@ export function HowItWorks() {
                   />
                 ) : (
                   <Image
-                    src={assetPath(step.media.src)}
+                    src={step.media.src}
                     alt={step.title}
                     width={80}
                     height={80}

@@ -6,3 +6,7 @@ vendor/
 composer.phar
 tsconfig.tsbuildinfo
 CHECKLIST.txt
+docs.pre-pages-build/
+.pages-backup-*/
+.pages-screenshots-backup/
+out/

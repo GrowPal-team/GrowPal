@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
+import { PublicImage } from '@/components/public-image'
 import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
@@ -124,7 +124,7 @@ function VerifyEmailContent() {
       <div className="relative z-20 w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
-            <Image 
+            <PublicImage
               src={BRAND_LOGO_SRC} 
               alt="GrowPal Logo" 
               width={100} 

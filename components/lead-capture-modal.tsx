@@ -8,21 +8,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { clientIsGuest } from "@/lib/session-client"
 import { saveWelcomeOffer } from "@/lib/discounts"
+import { isStaticPagesDeploy } from "@/lib/static-pages"
 
 const DELAY_MS = 10_000
+const DISMISS_KEY = "growpal-promo-modal-dismissed"
 
-function isLocalWebHostname(): boolean {
-  if (typeof window === "undefined") return false
-  const h = window.location.hostname
-  return h === "localhost" || h === "127.0.0.1" || h === "[::1]"
-}
-
-/** Treat `/`, empty, and trailing-slash-only as home (usePathname can be null briefly in App Router). */
+/** Treat `/`, `/GrowPal`, and trailing-slash variants as the marketing home page. */
 function normalizedHomePath(pathnameFromHook: string | null): string {
   if (typeof window === "undefined") return ""
   const raw = pathnameFromHook ?? window.location.pathname ?? ""
   const trimmed = raw.replace(/\/+$/, "")
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ""
+  if (base && trimmed === base) return "/"
   return trimmed === "" ? "/" : trimmed
+}
+
+function isOnHomePage(pathnameFromHook: string | null): boolean {
+  return normalizedHomePath(pathnameFromHook) === "/"
 }
 
 export function LeadCaptureModal() {
@@ -34,21 +36,32 @@ export function LeadCaptureModal() {
   const [err, setErr] = useState<string | null>(null)
 
   const dismiss = useCallback(() => {
+    try {
+      sessionStorage.setItem(DISMISS_KEY, "1")
+    } catch {
+      /* ignore */
+    }
     setVisible(false)
   }, [])
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    if (!isLocalWebHostname()) return
     if (!clientIsGuest()) return
-    if (normalizedHomePath(pathname) !== "/") return
+    if (!isOnHomePage(pathname)) return
+    try {
+      if (sessionStorage.getItem(DISMISS_KEY) === "1") return
+    } catch {
+      /* ignore */
+    }
 
     const t = window.setTimeout(() => {
-      if (!isLocalWebHostname()) return
       if (!clientIsGuest()) return
-      const trimmed = (window.location.pathname || "").replace(/\/+$/, "")
-      const stillHome = trimmed === "" || trimmed === "/"
-      if (!stillHome) return
+      if (!isOnHomePage(null)) return
+      try {
+        if (sessionStorage.getItem(DISMISS_KEY) === "1") return
+      } catch {
+        /* ignore */
+      }
       setVisible(true)
     }, DELAY_MS)
 
@@ -72,11 +85,13 @@ export function LeadCaptureModal() {
     setErr(null)
     setBusy(true)
     try {
-      await fetch("/api/promo-lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: e, discount_label: "10%" }),
-      })
+      if (!isStaticPagesDeploy) {
+        await fetch("/api/promo-lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: e, discount_label: "10%" }),
+        })
+      }
     } catch {
       /* still redirect */
     } finally {

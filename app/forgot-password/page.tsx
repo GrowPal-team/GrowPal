@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
+import { PublicImage } from '@/components/public-image'
 import { Mail, ArrowLeft, Loader2, Send } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
       <div className="relative z-20 w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center justify-center mb-1">
-            <Image
+            <PublicImage
               src={BRAND_LOGO_SRC}
               alt="GrowPal"
               width={100}

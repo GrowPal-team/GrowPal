@@ -1,4 +1,5 @@
 import seeds from "@/data/shop-product-seeds.json"
+import { publicAssetUrl } from "@/lib/asset-path"
 import { enrichProductCopy } from "@/lib/shop-catalog"
 
 export type DemoListProduct = {
@@ -98,8 +99,10 @@ function formatListProduct(seed: Seed, id: number): DemoListProduct {
     name: seed.name,
     price: seed.price_ils,
     ecoScore: seed.eco_score || 7,
-    image: enhancement.primaryImage,
-    secondaryImage: enhancement.secondaryImage,
+    image: publicAssetUrl(enhancement.primaryImage),
+    secondaryImage: enhancement.secondaryImage
+      ? publicAssetUrl(enhancement.secondaryImage)
+      : undefined,
     spaceType: spaceTypeValue,
     spaceTypes,
     sunExposure: seed.sun_exposure,

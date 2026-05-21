@@ -3,6 +3,7 @@ import { DM_Sans, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { isStaticPagesDeploy } from '@/lib/static-pages'
 import { BRAND_LOGO_SRC } from '@/lib/brand-assets'
+import { publicAssetUrl } from '@/lib/asset-path'
 import './globals.css'
 import { ConditionalExpertChatWidget } from '@/components/conditional-expert-chat-widget'
 import { LeadCaptureModal } from '@/components/lead-capture-modal'
@@ -20,8 +21,8 @@ export const metadata: Metadata = {
   title: 'GrowPal - Rooted in Home, Growing for Palestine',
   description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
   icons: {
-    icon: BRAND_LOGO_SRC,
-    apple: BRAND_LOGO_SRC,
+    icon: publicAssetUrl(BRAND_LOGO_SRC),
+    apple: publicAssetUrl(BRAND_LOGO_SRC),
   },
 }
 

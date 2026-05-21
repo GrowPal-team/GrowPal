@@ -1,3 +1,5 @@
+import { publicAssetUrl } from "@/lib/asset-path"
+
 type CatalogEnhancement = {
   primaryImage: string
   secondaryImage: string
@@ -7,7 +9,7 @@ type CatalogEnhancement = {
 }
 
 function localAsset(path: string) {
-  return encodeURI(path)
+  return publicAssetUrl(path)
 }
 
 const REMOTE_WEB_IMAGE_ROTATION = [

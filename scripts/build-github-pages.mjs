@@ -60,6 +60,9 @@ try {
   console.log("Extracting shop seed data...")
   run("node", ["scripts/extract-shop-seeds.mjs"])
 
+  console.log("Syncing public assets (Web, images, videos)...")
+  run("node", ["scripts/sync-public-assets.mjs"])
+
   for (const { src, backup, label } of dirsToBackup) {
     if (fs.existsSync(src)) {
       console.log(`Backing up ${label} for static export build...`)
@@ -92,30 +95,28 @@ try {
     throw new Error("Build did not produce an out/ directory.")
   }
 
-  if (fs.existsSync(docsBackup)) removeRecursive(docsBackup)
-  if (fs.existsSync(docsDir)) {
+  const screenshotsDir = path.join(docsDir, "screenshots")
+  const screenshotsBackup = path.join(projectRoot, ".pages-screenshots-backup")
+  if (fs.existsSync(screenshotsDir)) {
+    if (fs.existsSync(screenshotsBackup)) removeRecursive(screenshotsBackup)
     try {
-      fs.renameSync(docsDir, docsBackup)
+      fs.renameSync(screenshotsDir, screenshotsBackup)
     } catch {
-      removeRecursive(docsBackup)
-      copyRecursive(docsDir, docsBackup)
-      removeRecursive(docsDir)
+      copyRecursive(screenshotsDir, screenshotsBackup)
     }
   }
 
-  console.log("Publishing build to docs/ for GitHub Pages...")
+  console.log("Publishing build to docs/ for GitHub Pages (merge into docs/, no folder delete)...")
+  fs.mkdirSync(docsDir, { recursive: true })
   copyRecursive(outDir, docsDir)
   fs.writeFileSync(path.join(docsDir, ".nojekyll"), "")
 
-  removeRecursive(outDir)
-  if (fs.existsSync(docsBackup)) {
-    removeRecursive(path.join(docsDir, "screenshots"))
-    const backupScreens = path.join(docsBackup, "screenshots")
-    if (fs.existsSync(backupScreens)) {
-      copyRecursive(backupScreens, path.join(docsDir, "screenshots"))
-    }
-    removeRecursive(docsBackup)
+  if (fs.existsSync(screenshotsBackup)) {
+    copyRecursive(screenshotsBackup, path.join(docsDir, "screenshots"))
+    removeRecursive(screenshotsBackup)
   }
+
+  removeRecursive(outDir)
 
   console.log("Done. Enable GitHub Pages: branch main, folder /docs")
 } finally {

@@ -52,8 +52,9 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
       sunExposure: String(product.sun_exposure),
       waterLevel: String(product.water_level),
       spaceType: spaceTypeValue,
+      imageUrl: isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : null,
     })
-    const mainImage = enhancement.primaryImage || (isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage)
+    const mainImage = enhancement.primaryImage
     const images = Array.from(new Set([mainImage, enhancement.secondaryImage].filter(Boolean)))
 
     let related = await prisma.product.findMany({
@@ -84,20 +85,21 @@ export async function GET(_request: Request, context: { params: Promise<{ slug: 
         sunExposure: String(p.sun_exposure),
         waterLevel: String(p.water_level),
         spaceType: p.space_types,
+        imageUrl: isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : null,
       }),
       id: p.id,
       name: p.name,
       slug: p.slug,
       price: Number(p.price_ils),
-      image:
-        enrichProductCopy({
-          slug: p.slug,
-          category: p.categoryId === product.categoryId ? product.category?.name : null,
-          baseDescription: p.description,
-          sunExposure: String(p.sun_exposure),
-          waterLevel: String(p.water_level),
-          spaceType: p.space_types,
-        }).primaryImage || (isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : ""),
+      image: enrichProductCopy({
+        slug: p.slug,
+        category: p.categoryId === product.categoryId ? product.category?.name : null,
+        baseDescription: p.description,
+        sunExposure: String(p.sun_exposure),
+        waterLevel: String(p.water_level),
+        spaceType: p.space_types,
+        imageUrl: isUsableCatalogImage(p.imageUrl) ? p.imageUrl!.trim() : null,
+      }).primaryImage,
     }))
 
     return NextResponse.json({

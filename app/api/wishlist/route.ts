@@ -43,12 +43,13 @@ export async function GET(request: Request) {
         sunExposure: String(p.sun_exposure),
         waterLevel: String(p.water_level),
         spaceType: p.space_types,
+        imageUrl: isUsableWishlistImage(p.imageUrl) ? p.imageUrl!.trim() : null,
       })
       return {
         id: p.id,
         name: p.name,
         price,
-        image: enhancement.primaryImage || (isUsableWishlistImage(p.imageUrl) ? p.imageUrl!.trim() : FALLBACK_WISHLIST_IMAGE),
+        image: enhancement.primaryImage || FALLBACK_WISHLIST_IMAGE,
         slug: p.slug,
       }
     })

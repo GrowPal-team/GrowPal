@@ -90,6 +90,7 @@ function formatListProduct(seed: Seed, id: number): DemoListProduct {
     sunExposure: seed.sun_exposure,
     waterLevel: seed.water_level,
     spaceType: spaceTypeValue,
+    imageUrl: seed.imageUrl,
   })
 
   return {

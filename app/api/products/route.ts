@@ -100,8 +100,9 @@ export async function GET(request: Request) {
         sunExposure,
         waterLevel,
         spaceType: spaceTypeValue,
+        imageUrl: isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : null,
       })
-      const primaryImage = enhancement.primaryImage || (isUsableCatalogImage(product.imageUrl) ? product.imageUrl!.trim() : enhancement.primaryImage)
+      const primaryImage = enhancement.primaryImage
 
       return {
         id: product.id,

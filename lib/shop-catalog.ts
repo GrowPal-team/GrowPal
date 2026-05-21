@@ -11,6 +11,13 @@ function localAsset(path: string) {
   return encodeURI(normalized)
 }
 
+function isLocalProductImage(src: string | null | undefined) {
+  if (!src) return false
+  const normalized = src.trim()
+  if (!normalized || normalized.includes("placeholder")) return false
+  return normalized.startsWith("/images/") || normalized.startsWith("/Web/")
+}
+
 const REMOTE_WEB_IMAGE_ROTATION = [
   "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?auto=format&fit=crop&w=1200&q=80",
@@ -396,8 +403,13 @@ export function enrichProductCopy(args: {
   sunExposure?: string | null
   waterLevel?: string | null
   spaceType?: string | null
+  imageUrl?: string | null
 }) {
   const enhancement = getCatalogEnhancement(args.slug, args.category)
+  const primaryImage =
+    isLocalProductImage(args.imageUrl) && args.imageUrl
+      ? localAsset(args.imageUrl)
+      : enhancement.primaryImage
   const parts = [
     args.baseDescription?.trim() || enhancement.shortDescription,
     `Best for ${enhancement.idealFor.toLowerCase()}.`,
@@ -407,6 +419,7 @@ export function enrichProductCopy(args: {
 
   return {
     ...enhancement,
+    primaryImage,
     fullDescription: parts.filter(Boolean).join(" "),
     displaySpaceType: toSentenceCase(String(args.spaceType || "").replaceAll("_", " ")),
   }

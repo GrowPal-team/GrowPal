@@ -10,7 +10,8 @@
     "verify-db": "node scripts/verify-db.mjs",
     "seed:shop": "node sync-shop-products.js",
     "setup:reward-codes": "node scripts/setup-reward-codes.mjs",
-    "prepare:deploy": "npm run verify-db && npm run setup:reward-codes && npm run seed:shop && npm run build"
+    "prepare:deploy": "npm run verify-db && npm run setup:reward-codes && npm run seed:shop && npm run build",
+    "build:pages": "node scripts/build-github-pages.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

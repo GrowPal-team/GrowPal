@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { assetPath } from "@/lib/asset-path"
 
 const steps = [
   {
@@ -50,7 +51,7 @@ export function HowItWorks() {
                 {step.media.kind === "video" ? (
                   <video
                     className="h-full w-full object-cover"
-                    src={step.media.src}
+                    src={assetPath(step.media.src)}
                     autoPlay
                     muted
                     loop
@@ -58,7 +59,7 @@ export function HowItWorks() {
                   />
                 ) : (
                   <Image
-                    src={step.media.src}
+                    src={assetPath(step.media.src)}
                     alt={step.title}
                     width={80}
                     height={80}

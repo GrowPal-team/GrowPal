@@ -137,7 +137,7 @@ npm run dev
 
 ### 4.3 Deployment note
 
-GitHub Pages is unsuitable for this codebase because the product requires server-side rendering, API routes, and a database. Production deployment should use a platform that supports Node.js, PHP (where required), and MySQL (e.g. Railway, Render, or comparable PaaS). Configure SMTP variables in `.env` for outbound mail.
+A **static preview** of the public Next.js UI (home, shop, climate zones, product pages, and marketing screens) is published via GitHub Pages at `https://growpal-team.github.io/GrowPal/`. That preview uses bundled demo catalog data; login, checkout, cart sync, and other API-backed flows require the full local stack. Rebuild the preview with `npm run build:pages` (output in `docs/`). Full production deployment should use a platform that supports Node.js, PHP (where required), and MySQL (e.g. Railway, Render, or comparable PaaS).
 
 ---
 

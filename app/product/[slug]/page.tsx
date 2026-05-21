@@ -15,6 +15,7 @@ import {
   type WishlistLine,
 } from "@/lib/shopping"
 import { ensureLoggedInForShopping } from "@/lib/purchase-guard"
+import { fetchProductDetail, fetchProductReviews } from "@/lib/static-pages"
 
 type ProductDetail = {
   id: number
@@ -74,9 +75,7 @@ export default function ProductPage() {
     ;(async () => {
       setLoading(true)
       try {
-        const r = await fetch(`/api/products/${encodeURIComponent(slug)}`)
-        if (!r.ok) throw new Error("not found")
-        const data = await r.json()
+        const data = await fetchProductDetail(slug)
         if (!cancelled) {
           setProduct(data)
           setMainIdx(0)
@@ -94,9 +93,7 @@ export default function ProductPage() {
 
   const loadReviews = useCallback(async () => {
     if (!slug) return
-    const r = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews`)
-    if (!r.ok) return
-    const data = await r.json().catch(() => null)
+    const data = await fetchProductReviews(slug).catch(() => null)
     const safeData = data && typeof data === "object" ? data : null
     const safeReviews = Array.isArray(safeData?.reviews) ? safeData.reviews : []
     setReviews(safeReviews)

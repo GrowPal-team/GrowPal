@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react"
 import { addToCart, addToWishlistWithSync, type WishlistLine } from "@/lib/shopping"
 import { ensureLoggedInForShopping } from "@/lib/purchase-guard"
 import { pickFeaturedHeroImage } from "@/lib/product-media"
+import { fetchProductList } from "@/lib/static-pages"
 
 type Package = {
   id: number
@@ -194,9 +195,7 @@ export function FeaturedPackages() {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await fetch("/api/products")
-        if (!response.ok) throw new Error("Failed to fetch products")
-        const products: any[] = await response.json()
+        const products: any[] = await fetchProductList()
         if (!Array.isArray(products)) {
           setPackages([])
           return

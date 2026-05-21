@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { isStaticPagesDeploy } from '@/lib/static-pages'
+import { assetPath } from '@/lib/asset-path'
 import './globals.css'
 import { ConditionalExpertChatWidget } from '@/components/conditional-expert-chat-widget'
 import { LeadCaptureModal } from '@/components/lead-capture-modal'
@@ -13,8 +15,8 @@ export const metadata: Metadata = {
   title: 'GrowPal - Rooted in Home, Growing for Palestine',
   description: 'GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment.',
   icons: {
-    icon: '/images/Icon%20(1).jpeg',
-    apple: '/images/Icon%20(1).jpeg',
+    icon: assetPath('/images/Icon%20(1).jpeg'),
+    apple: assetPath('/images/Icon%20(1).jpeg'),
   },
 }
 
@@ -34,7 +36,7 @@ export default function RootLayout({
         <LeadCaptureModal />
         <ConditionalExpertChatWidget />
         <Toaster />
-        <Analytics />
+        {!isStaticPagesDeploy ? <Analytics /> : null}
       </body>
     </html>
   )

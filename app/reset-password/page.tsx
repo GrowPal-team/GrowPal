@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { ParticlesCanvas } from "@/components/ui/particles-canvas"
 import LoginPage from "@/components/ui/gaming-login"
+import { assetPath } from "@/lib/asset-path"
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -90,7 +91,7 @@ function ResetPasswordContent() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
-      <LoginPage.VideoBackground videoUrl="/videos/signin.mp4" />
+      <LoginPage.VideoBackground videoUrl={assetPath("/videos/signin.mp4")} />
       <div className="absolute inset-0 z-10">
         <ParticlesCanvas />
       </div>

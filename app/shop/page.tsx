@@ -12,6 +12,7 @@ import { ShoppingCart, Heart, Leaf, SlidersHorizontal } from "lucide-react"
 import { addToCart, addToWishlistWithSync, type WishlistLine } from "@/lib/shopping"
 import { loadClimatePrefs, clearClimatePrefs } from "@/lib/climate-zones"
 import { ensureLoggedInForShopping } from "@/lib/purchase-guard"
+import { fetchProductList } from "@/lib/static-pages"
 
 type Product = {
   id: number
@@ -91,10 +92,7 @@ export default function ShopPage() {
         if (sunExposure !== "all") params.append("sunExposure", sunExposure)
         if (waterLevel !== "all") params.append("waterLevel", waterLevel)
 
-        const response = await fetch(`/api/products?${params.toString()}`)
-        if (!response.ok) throw new Error("Failed to fetch products")
-        
-        const data = await response.json()
+        const data = await fetchProductList(params)
         setProducts(data)
       } catch (error) {
         console.error("Error fetching products:", error)

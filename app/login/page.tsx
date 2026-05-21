@@ -6,6 +6,7 @@ import { Check } from 'lucide-react'
 import LoginPage from '@/components/ui/gaming-login'
 import { ParticlesCanvas } from '@/components/ui/particles-canvas'
 import { saveWelcomeOffer } from '@/lib/discounts'
+import { assetPath } from '@/lib/asset-path'
 
 function safeNext(raw: string | null): string {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/'
@@ -149,7 +150,7 @@ function LoginInner() {
 export default function Login() {
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-4 py-12">
-      <LoginPage.VideoBackground videoUrl="/videos/signin.mp4" />
+      <LoginPage.VideoBackground videoUrl={assetPath("/videos/signin.mp4")} />
       <div className="absolute inset-0 z-10">
         <ParticlesCanvas />
       </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { assetPath } from "@/lib/asset-path"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -28,7 +29,7 @@ export function HeroSection() {
         loop
         playsInline
       >
-        <source src="/videos/home.mp4" type="video/mp4" />
+        <source src={assetPath("/videos/home.mp4")} type="video/mp4" />
       </video>
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center md:max-w-4xl md:py-32">
         <div className="mb-4 flex items-center gap-2 rounded-full bg-[#2F6F4E] px-4 py-1.5 backdrop-blur">

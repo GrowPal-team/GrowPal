@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { MapPin, ArrowRight } from "lucide-react"
 
-const VIDEO_SRC = "/videos/ExplorePlantsforYourZone.mp4"
+import { assetPath } from "@/lib/asset-path"
+
+const VIDEO_SRC = assetPath("/videos/ExplorePlantsforYourZone.mp4")
 
 /**
  * Full-width hero banner: video background (no filters on the video), text overlay, CTA to interactive map.

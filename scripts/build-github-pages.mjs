@@ -94,7 +94,13 @@ try {
 
   if (fs.existsSync(docsBackup)) removeRecursive(docsBackup)
   if (fs.existsSync(docsDir)) {
-    fs.renameSync(docsDir, docsBackup)
+    try {
+      fs.renameSync(docsDir, docsBackup)
+    } catch {
+      removeRecursive(docsBackup)
+      copyRecursive(docsDir, docsBackup)
+      removeRecursive(docsDir)
+    }
   }
 
   console.log("Publishing build to docs/ for GitHub Pages...")

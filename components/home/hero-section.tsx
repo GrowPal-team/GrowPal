@@ -31,6 +31,7 @@ export function HeroSection() {
       >
         <source src={assetPath("/videos/home.mp4")} type="video/mp4" />
       </video>
+      <div className="absolute inset-0 z-[1] bg-black/45" aria-hidden />
       <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center md:max-w-4xl md:py-32">
         <div className="mb-4 flex items-center gap-2 rounded-full bg-[#2F6F4E] px-4 py-1.5 backdrop-blur">
           <span className="text-sm font-medium text-white">Smart Green Marketplace</span>

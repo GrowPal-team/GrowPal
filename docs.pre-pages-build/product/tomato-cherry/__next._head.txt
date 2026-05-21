@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[97367,["/GrowPal/_next/static/chunks/ff1a16fafef87110.js","/GrowPal/_next/static/chunks/d2be314c3ece3fbe.js"],"ViewportBoundary"]
+3:I[97367,["/GrowPal/_next/static/chunks/ff1a16fafef87110.js","/GrowPal/_next/static/chunks/d2be314c3ece3fbe.js"],"MetadataBoundary"]
+4:"$Sreact.suspense"
+5:I[27201,["/GrowPal/_next/static/chunks/ff1a16fafef87110.js","/GrowPal/_next/static/chunks/d2be314c3ece3fbe.js"],"IconMark"]
+0:{"buildId":"k0EycdDSm_SmAK3Qf99n_","rsc":["$","$1","h",{"children":[null,["$","$L2",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#3a7d44"}]]}],["$","div",null,{"hidden":true,"children":["$","$L3",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"GrowPal - Rooted in Home, Growing for Palestine"}],["$","meta","1",{"name":"description","content":"GrowPal is a smart green marketplace that helps users transform any space into a sustainable green environment."}],["$","link","2",{"rel":"icon","href":"/GrowPal/images/Icon%20(1).jpeg"}],["$","link","3",{"rel":"apple-touch-icon","href":"/GrowPal/images/Icon%20(1).jpeg"}],["$","$L5","4",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"loading":null,"isPartial":false}

@@ -10,7 +10,6 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ShoppingCart, Heart, Leaf, SlidersHorizontal } from "lucide-react"
 import { addToCart, addToWishlistWithSync, type WishlistLine } from "@/lib/shopping"
-import { loadClimatePrefs, clearClimatePrefs } from "@/lib/climate-zones"
 import { ensureLoggedInForShopping } from "@/lib/purchase-guard"
 import { fetchProductList } from "@/lib/static-pages"
 
@@ -61,26 +60,8 @@ export default function ShopPage() {
   const [sunExposure, setSunExposure] = useState("all")
   const [waterLevel, setWaterLevel] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
-  const [climateZoneLabel, setClimateZoneLabel] = useState<string | null>(null)
-  const [priceLimit, setPriceLimit] = useState<number | null>(null)
+  const [priceLimit, setPriceLimit] = useState(PRICE_SOFT_CAP)
   const [hasCustomPriceLimit, setHasCustomPriceLimit] = useState(false)
-
-  useEffect(() => {
-    const p = loadClimatePrefs()
-    if (!p) return
-    setSpaceType(p.spaceType)
-    setSunExposure(p.sunExposure)
-    setWaterLevel(p.waterLevel)
-    setClimateZoneLabel(p.label)
-  }, [])
-
-  const clearZoneFilters = () => {
-    clearClimatePrefs()
-    setClimateZoneLabel(null)
-    setSpaceType("all")
-    setSunExposure("all")
-    setWaterLevel("all")
-  }
 
   // جلب المنتجات من API
   useEffect(() => {
@@ -121,14 +102,14 @@ export default function ShopPage() {
     }
 
     setPriceLimit((current) => {
-      if (current === null || !hasCustomPriceLimit) return sliderCeiling
+      if (!hasCustomPriceLimit) return sliderCeiling
       return Math.min(current, sliderCeiling)
     })
   }, [maxAvailablePrice, hasCustomPriceLimit, sliderCeiling])
 
   const filtered = useMemo(() => {
-    if (priceLimit === null) return products
-    if (maxAvailablePrice > sliderCeiling && priceLimit >= sliderCeiling) return products
+    if (maxAvailablePrice === 0) return products
+    if (priceLimit >= sliderCeiling) return products
     return products.filter((product) => product.price <= priceLimit)
   }, [products, priceLimit, maxAvailablePrice, sliderCeiling])
 
@@ -263,7 +244,7 @@ export default function ShopPage() {
   }
 
   const priceLimitLabel =
-    priceLimit === null || maxAvailablePrice === 0
+    maxAvailablePrice === 0
       ? "All prices"
       : maxAvailablePrice > sliderCeiling && priceLimit >= sliderCeiling
         ? `₪${sliderCeiling}+`
@@ -278,20 +259,6 @@ export default function ShopPage() {
             <h1 className="font-serif text-3xl font-bold text-foreground md:text-4xl">Shop Plants</h1>
             <p className="text-muted-foreground">Find the perfect plants and care tools for every space, style, and climate.</p>
           </div>
-
-          {climateZoneLabel && (
-            <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm text-foreground">
-              <span>
-                Filters aligned with your climate zone: <strong>{climateZoneLabel}</strong>
-              </span>
-              <Button type="button" variant="outline" size="sm" className="ml-auto rounded-full text-xs" onClick={clearZoneFilters}>
-                Clear zone
-              </Button>
-              <Link href="/climate-zones" className="text-xs font-medium text-primary hover:underline">
-                Change on map
-              </Link>
-            </div>
-          )}
 
           {/* Filters */}
           <div className="mt-6">

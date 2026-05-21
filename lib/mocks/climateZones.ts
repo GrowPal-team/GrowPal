@@ -1,8 +1,8 @@
 import type { LucideIcon } from "lucide-react"
 import { Droplets, Mountain, Sun, Trees, Flower2 } from "lucide-react"
-import { PLANT_PRESETS, type RecommendedPlant } from "@/lib/mocks/plantPresets"
+import { pickShopPlants, type RecommendedPlant } from "@/lib/mocks/climate-shop-products"
 
-export type { RecommendedPlant } from "@/lib/mocks/plantPresets"
+export type { RecommendedPlant } from "@/lib/mocks/climate-shop-products"
 
 export type ClimateZone = {
   id: string
@@ -113,26 +113,7 @@ export const CLIMATE_ZONES: ClimateZone[] = [
     growingSeasons: ["Spring", "Fall", "Mild winter"],
     soilType: "Sandy loam",
     heatTolerance: "High",
-    recommendedPlants: [
-      {
-        name: "Lemon tree",
-        category: "Outdoor trees",
-        priceIls: 220,
-        image: PLANT_PRESETS.lemon.image,
-      },
-      {
-        name: "Jasmine",
-        category: "Indoor plants",
-        priceIls: 95,
-        image: PLANT_PRESETS.jasmine.image,
-      },
-      {
-        name: "Bougainvillea",
-        category: "Outdoor trees",
-        priceIls: 120,
-        image: PLANT_PRESETS.bougainvillea.image,
-      },
-    ],
+    recommendedPlants: pickShopPlants("oleander", "geranium", "bougainvillea"),
     sunExposure: "High",
     waterLevel: "Medium",
     spaceType: "Balcony",
@@ -157,26 +138,7 @@ export const CLIMATE_ZONES: ClimateZone[] = [
     growingSeasons: ["Spring", "Summer", "Fall"],
     soilType: "Terra rossa / limestone",
     heatTolerance: "Medium",
-    recommendedPlants: [
-      {
-        name: "Olive tree",
-        category: "Outdoor trees",
-        priceIls: 280,
-        image: PLANT_PRESETS.olive.image,
-      },
-      {
-        name: "Fig tree",
-        category: "Outdoor trees",
-        priceIls: 190,
-        image: PLANT_PRESETS.fig.image,
-      },
-      {
-        name: "Rosemary",
-        category: "Herbs",
-        priceIls: 45,
-        image: PLANT_PRESETS.rosemary.image,
-      },
-    ],
+    recommendedPlants: pickShopPlants("rubber", "fiddle", "rosemary"),
     sunExposure: "High",
     waterLevel: "Medium",
     spaceType: "Garden",
@@ -201,26 +163,7 @@ export const CLIMATE_ZONES: ClimateZone[] = [
     growingSeasons: ["Year-round (with water)", "Winter peak"],
     soilType: "Alluvial / heavy",
     heatTolerance: "Very high",
-    recommendedPlants: [
-      {
-        name: "Date palm",
-        category: "Outdoor trees",
-        priceIls: 350,
-        image: PLANT_PRESETS.datePalm.image,
-      },
-      {
-        name: "Basil",
-        category: "Herbs",
-        priceIls: 35,
-        image: PLANT_PRESETS.basil.image,
-      },
-      {
-        name: "Hibiscus",
-        category: "Outdoor plants",
-        priceIls: 85,
-        image: PLANT_PRESETS.hibiscus.image,
-      },
-    ],
+    recommendedPlants: pickShopPlants("agave", "basil", "petunia"),
     sunExposure: "High",
     waterLevel: "High",
     spaceType: "Garden",
@@ -245,26 +188,7 @@ export const CLIMATE_ZONES: ClimateZone[] = [
     growingSeasons: ["Spring", "Summer", "Fall"],
     soilType: "Basalt / clay loam",
     heatTolerance: "Medium",
-    recommendedPlants: [
-      {
-        name: "Stone fruit sapling",
-        category: "Outdoor trees",
-        priceIls: 210,
-        image: PLANT_PRESETS.stoneFruit.image,
-      },
-      {
-        name: "Fern mix",
-        category: "Shade plants",
-        priceIls: 65,
-        image: PLANT_PRESETS.fern.image,
-      },
-      {
-        name: "Mint",
-        category: "Herbs",
-        priceIls: 30,
-        image: PLANT_PRESETS.mint.image,
-      },
-    ],
+    recommendedPlants: pickShopPlants("fiddle", "spider", "mint"),
     sunExposure: "Medium",
     waterLevel: "Medium",
     spaceType: "Garden",
@@ -289,26 +213,7 @@ export const CLIMATE_ZONES: ClimateZone[] = [
     growingSeasons: ["Spring", "Fall"],
     soilType: "Loamy sand / desert crust",
     heatTolerance: "Very high",
-    recommendedPlants: [
-      {
-        name: "Succulent garden kit",
-        category: "Indoor plants",
-        priceIls: 110,
-        image: PLANT_PRESETS.succulentMix.image,
-      },
-      {
-        name: "Acacia sapling",
-        category: "Outdoor trees",
-        priceIls: 165,
-        image: PLANT_PRESETS.acacia.image,
-      },
-      {
-        name: "Desert sage",
-        category: "Herbs",
-        priceIls: 40,
-        image: PLANT_PRESETS.rosemary.image,
-      },
-    ],
+    recommendedPlants: pickShopPlants("jade", "agave", "rosemary"),
     sunExposure: "High",
     waterLevel: "Low",
     spaceType: "Garden",

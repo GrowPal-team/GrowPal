@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { ClimateZone } from "@/lib/mocks/climateZones"
 import type { CityClimateProfile } from "@/lib/mocks/cityClimate"
-import type { RecommendedPlant } from "@/lib/mocks/plantPresets"
+import type { RecommendedPlant } from "@/lib/mocks/climate-shop-products"
 import { citiesInZone } from "@/lib/mocks/cityClimate"
 import {
   ArrowRight,
@@ -34,8 +34,9 @@ function PlantGrid({ plants }: { plants: RecommendedPlant[] }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {plants.map((p) => (
-        <div
-          key={p.name}
+        <Link
+          key={p.slug}
+          href={`/product/${encodeURIComponent(p.slug)}`}
           className="overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
         >
           <div className="relative aspect-[4/3] w-full">
@@ -46,7 +47,7 @@ function PlantGrid({ plants }: { plants: RecommendedPlant[] }) {
             <p className="text-[10px] text-muted-foreground line-clamp-2">{p.category}</p>
             <p className="mt-1 text-xs font-bold text-foreground">₪{p.priceIls}</p>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   )

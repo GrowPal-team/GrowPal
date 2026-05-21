@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -130,7 +130,7 @@ export default function WishlistPage() {
                       href={item.slug ? `/product/${encodeURIComponent(item.slug)}` : "/shop"}
                       className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl"
                     >
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <PublicImage src={item.image} alt={item.name} fill className="object-cover" />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link

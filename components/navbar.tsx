@@ -9,6 +9,7 @@ import { cartItemCount, getStoredUser, wishlistLocalCount } from "@/lib/shopping
 import { UserMenu } from "@/components/user-menu"
 import { ExpertHubBar, EXPERT_HUB_ITEMS } from "@/components/expert/expert-subnav"
 import { clientGetRole, clientIsExpert, clientIsLoggedIn } from "@/lib/session-client"
+import { BRAND_LOGO_SRC } from "@/lib/brand-assets"
 
 const baseLinks: { href: string; label: string; requireAuth?: boolean }[] = [
   { href: "/", label: "Home" },
@@ -79,7 +80,7 @@ export function Navbar() {
         <Link href={homeHref} className="flex shrink-0 items-center gap-2 self-center">
           <div className="relative flex h-9 w-9 items-center justify-center">
             <Image
-              src="/images/Icon%20(1).jpeg"
+              src={BRAND_LOGO_SRC}
               alt="GrowPal Logo"
               width={36}
               height={36}

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import { assetPath } from '@/lib/asset-path'
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string, remember: boolean) => void
@@ -129,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
       <div className="mb-8 text-center">
         <Link href={homeHref} className="inline-flex items-center justify-center mb-1">
           <Image 
-            src="/images/iccoonnn.png" 
+            src={assetPath("/images/iccoonnn.png")} 
             alt="GrowPal Logo" 
             width={100} 
             height={100} 

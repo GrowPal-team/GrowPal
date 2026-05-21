@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { PublicImage } from "@/components/public-image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { ClimateZone } from "@/lib/mocks/climateZones"
@@ -39,7 +39,7 @@ function PlantGrid({ plants }: { plants: RecommendedPlant[] }) {
           className="overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md"
         >
           <div className="relative aspect-[4/3] w-full">
-            <Image src={p.image} alt={p.name} fill className="object-cover" sizes="160px" />
+            <PublicImage src={p.image} alt={p.name} fill className="object-cover" sizes="160px" />
           </div>
           <div className="p-2">
             <p className="text-xs font-semibold text-foreground line-clamp-2">{p.name}</p>

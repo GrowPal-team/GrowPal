@@ -1,5 +1,7 @@
 /** Shared plant cards for climate UI. Prefer local curated assets, then stable remote fallbacks. */
 
+import { publicAssetUrl } from "@/lib/asset-path"
+
 export type RecommendedPlant = {
   name: string
   category: string
@@ -7,7 +9,7 @@ export type RecommendedPlant = {
   image: string
 }
 
-const localAsset = (path: string) => encodeURI(path)
+const localAsset = (path: string) => publicAssetUrl(path)
 
 const remoteAsset = (url: string) => url
 

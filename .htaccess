@@ -1,0 +1,9 @@
+# Route legacy PHP storefront and API URLs after consolidating under php/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^api/(.*)$ php/api/$1 [L]
+    RewriteRule ^css/(.*)$ php/legacy/css/$1 [L]
+    RewriteRule ^js/(.*)$ php/legacy/js/$1 [L]
+    RewriteRule ^(index|about|cart|checkout|contact|login|register|shop|wishlist)\.php$ php/legacy/$1.php [L]
+</IfModule>

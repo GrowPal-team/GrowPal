@@ -34,7 +34,7 @@ The application serves three primary user journeys:
 |--------|------------|------|
 | Presentation | Next.js, React, TypeScript, Tailwind CSS | Routes, UI components, client logic |
 | Application API | Next.js Route Handlers | REST-style endpoints for shop, auth bridge, checkout |
-| Legacy services | PHP (`api/`, `includes/`) | Session auth, mail, shared server utilities |
+| Legacy services | PHP (`php/`) | Session auth, mail, shared server utilities |
 | Persistence | MySQL via Prisma | Schema, queries, migrations |
 | Messaging | PHPMailer | Transactional email (verification, reset) |
 
@@ -42,12 +42,21 @@ The application serves three primary user journeys:
 
 | Path | Description |
 |------|-------------|
-| `app/` | Next.js App Router pages and API routes |
-| `components/` | Reusable React UI modules |
-| `lib/` | Catalog, filters, discounts, mocks, shared helpers |
-| `api/`, `includes/` | PHP backend and includes |
+| `src/app/` | Next.js App Router pages and API routes |
+| `src/components/` | Reusable React UI modules |
+| `src/hooks/` | Shared React hooks |
+| `src/lib/` | Catalog, filters, discounts, mocks, shared helpers |
+| `src/lib/data/` | Shop seed JSON and expert consultation runtime store |
+| `php/` | PHP API, config, includes, email templates, and legacy storefront |
+| `scripts/build/` | GitHub Pages export, asset sync, seed extraction |
+| `scripts/seed/` | Shop catalog and reward-code seeding |
+| `scripts/verify/` | Database and image verification |
+| `scripts/dev/` | Local dev helpers (restart server, PHPMailer install) |
+| `scripts/migrate/` | One-off PHP database migrations |
 | `prisma/` | Database schema and client generation |
 | `public/` | Static media (images, icons, video) |
+| `docs/` | GitHub Pages static export (see §4.3) |
+| `deploy/` | Deployment helpers (GitHub Pages redirect template) |
 | `docs/screenshots/` | Documentation figures (see §5) |
 
 ---
@@ -86,7 +95,7 @@ cd GrowPal
 
 ```bash
 npm install
-composer install
+composer install --working-dir=php
 ```
 
 **Step 3 — Configure environment**

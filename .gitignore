@@ -3,6 +3,7 @@ node_modules
 .env
 .idea/
 vendor/
+php/vendor/
 composer.phar
 tsconfig.tsbuildinfo
 CHECKLIST.txt

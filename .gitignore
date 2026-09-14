@@ -11,3 +11,6 @@ docs.pre-pages-build/
 .pages-backup-*/
 .pages-screenshots-backup/
 out/
+.vercel
+.env.local
+.env*.local

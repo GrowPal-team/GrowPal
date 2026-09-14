@@ -4,9 +4,10 @@
 
 | | |
 |---|---|
+| **Live site** | [growpal-gold.vercel.app](https://growpal-gold.vercel.app) |
 | **Repository** | [github.com/GrowPal-team/GrowPal](https://github.com/GrowPal-team/GrowPal) |
 | **Stack** | Next.js (App Router), React 19, TypeScript, PHP, MySQL, Prisma |
-| **Deployment** | Server-hosted application (not static hosting) |
+| **Deployment** | [Vercel](https://growpal-gold.vercel.app) (Next.js) + Railway (MySQL) |
 
 ---
 

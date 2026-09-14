@@ -46,11 +46,15 @@ export async function handleNativeAuth(body: Record<string, unknown>): Promise<A
     }
   }
 
-  if (!process.env.DATABASE_URL?.trim()) {
+  const databaseUrl = process.env.DATABASE_URL?.trim() || ""
+  const isLocalDatabase =
+    /localhost|127\.0\.0\.1/i.test(databaseUrl) || databaseUrl.includes("@127.0.0.1")
+
+  if (!databaseUrl || (process.env.NODE_ENV === "production" && isLocalDatabase)) {
     return {
       success: false,
       message:
-        "Login is not configured on the live site yet. The database connection (DATABASE_URL) must be added in Vercel.",
+        "Login on the live site needs a cloud MySQL database. Add DATABASE_URL in Vercel (Railway MySQL).",
     }
   }
 

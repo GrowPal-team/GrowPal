@@ -112,7 +112,11 @@ function LoginInner() {
       return
     } catch (error: unknown) {
       console.error('Login error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.'
+      const raw = error instanceof Error ? error.message : 'An error occurred. Please try again.'
+      const errorMessage =
+        raw === 'fetch failed'
+          ? 'Could not reach the login service. The live site still needs a cloud database (DATABASE_URL on Vercel).'
+          : raw
       setError(errorMessage)
     }
   }
